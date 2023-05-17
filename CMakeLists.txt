@@ -27,8 +27,19 @@ message(STATUS "=> set TOPDIR=${TOPDIR}")
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_library(LIB_UV uv REQUIRED)
+find_package(docopt COMPONENTS CXX REQUIRED)
+include_directories(${DOCOPT_INCLUDE_DIRS})
+
 ## 找到noscommon
+message(STATUS "=> get NOS_BUILD=${NOS_BUILD}")
+
+if (NOS_BUILD)
+# 在NOS BUILD目录下，需要CMAKE决定依赖
+set(LIB_NOSCOMMON noscommon)
+else()
 find_library(LIB_NOSCOMMON noscommon PATHS ${NOS_COMMON_DIR}/build/lib)
+endif()
+
 message(STATUS "=> find LIB_NOSCOMMON=${LIB_NOSCOMMON}")
 
 ## set default include folder
@@ -37,6 +48,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include  ${NOS_COMMON_DIR}/include)
 add_executable(${EXECUTABLE_NAME} src/main.cpp)
 
 target_link_libraries(${EXECUTABLE_NAME} spdlog::spdlog ${LIB_NOSCOMMON} ${LIB_UV})
+
+
+add_executable(test_docopt src/test_docopt.cpp)
+target_link_libraries(test_docopt docopt)
+
 
 ## set install 
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION bin)
