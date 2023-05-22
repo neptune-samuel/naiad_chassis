@@ -19,10 +19,13 @@ get_filename_component(TOPDIR ${PROJECT_SOURCE_DIR}/../ ABSOLUTE)
 ## nos_common 目录
 set(NOS_COMMON_DIR ${TOPDIR}/nos_common)
 set(NOS_COMMON_INSTALL_DIR ${NOS_COMMON_DIR}/local-install/${CMAKE_SYSTEM_PROCESSOR})
+set(NOS_COMMON_LIBS_INSTALL_DIR ${NOS_COMMON_DIR}/libs-install/${CMAKE_SYSTEM_PROCESSOR})
+
 
 message(STATUS "=> set TOPDIR=${TOPDIR}")
 message(STATUS "=> set NOS_COMMON_DIR=${NOS_COMMON_DIR}")
 message(STATUS "=> set NOS_COMMON_INSTALL_DIR=${NOS_COMMON_INSTALL_DIR}")
+message(STATUS "=> set NOS_COMMON_LIBS_INSTALL_DIR=${NOS_COMMON_LIBS_INSTALL_DIR}")
 message(STATUS "=> get NOS_BUILD=${NOS_BUILD}")
 
 ## 设置本地安装目录
@@ -33,7 +36,7 @@ message(STATUS "=> Local install at ${LOCAL_INSTALL_DIR}")
 # 它可以被find_package()、find_program()、find_library()、find_file()和find_path()等命令使用。
 # 这些命令将根据自己的文档添加bin、lib或include等子目录。CMAKE_PREFIX_PATH可以包含单个前缀或多个前缀，
 # UNIX上用冒号分隔，Windows上用分号分隔。默认情况下，它为空。它旨在由项目设置。
-set(CMAKE_PREFIX_PATH ${NOS_COMMON_INSTALL_DIR})
+set(CMAKE_PREFIX_PATH ${NOS_COMMON_INSTALL_DIR} ${NOS_COMMON_LIBS_INSTALL_DIR})
 
 ## 查找需要的库
 find_package(libuv REQUIRED)
@@ -48,9 +51,12 @@ set(CMAKE_INSTALL_PREFIX ${LOCAL_INSTALL_DIR})
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${NOS_COMMON_INSTALL_DIR}/include
+    ${NOS_COMMON_LIBS_INSTALL_DIR}/include
     )
 ## add local libs dir
-link_directories(${NOS_COMMON_INSTALL_DIR}/lib)
+link_directories(${NOS_COMMON_INSTALL_DIR}/lib
+    ${NOS_COMMON_LIBS_INSTALL_DIR}/lib
+    )
 
 ## add src
 add_subdirectory(src)
