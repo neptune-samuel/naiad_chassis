@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
 project(nos_chassis)
 
@@ -14,13 +14,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "-> Setting build type to 'RelWithDebInfo'")
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 ## 配置NOS顶层目录
 get_filename_component(TOPDIR ${PROJECT_SOURCE_DIR}/../ ABSOLUTE)
 ## nos_common 目录
 set(NOS_COMMON_DIR ${TOPDIR}/nos_common)
 set(NOS_COMMON_INSTALL_DIR ${NOS_COMMON_DIR}/local-install/${CMAKE_SYSTEM_PROCESSOR})
 set(NOS_COMMON_LIBS_INSTALL_DIR ${NOS_COMMON_DIR}/libs-install/${CMAKE_SYSTEM_PROCESSOR})
-
+set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
 
 message(STATUS "=> set TOPDIR=${TOPDIR}")
 message(STATUS "=> set NOS_COMMON_DIR=${NOS_COMMON_DIR}")
@@ -44,6 +51,12 @@ find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(docopt REQUIRED)
 
+## private libraries
+find_library(LIB_LOGGER logger PATHS ${NOS_COMMON_INSTALL_DIR}/lib)
+find_library(LIB_NOSCOMMON noscommon PATHS ${NOS_COMMON_INSTALL_DIR}/lib)
+message(STATUS "=> find LIB_LOGGER=${LIB_LOGGER}")
+message(STATUS "=> find LIB_NOSCOMMON=${LIB_NOSCOMMON}")
+
 ## 设定一些公共的环境变量
 set(CMAKE_INSTALL_PREFIX ${LOCAL_INSTALL_DIR})
 
@@ -58,5 +71,15 @@ link_directories(${NOS_COMMON_INSTALL_DIR}/lib
     ${NOS_COMMON_LIBS_INSTALL_DIR}/lib
     )
 
+## add libs
+add_subdirectory(libs/sacp)
+
 ## add src
 add_subdirectory(src)
+
+## add test
+add_subdirectory(test)
+
+
+
+
