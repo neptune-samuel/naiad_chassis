@@ -4,9 +4,19 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/../nos_common/local-install/x86_64/include/*"                
+                "${workspaceFolder}/../nos_common/libs-install/x86_64/include/*",
+                "${workspaceFolder}/../nos_common/local-install/x86_64/include/*",
+                "${workspaceFolder}/libs/sacp/include/*"
             ],
-            "defines": [],
+            "defines": [
+                "__no_framework__"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/../nos_common/libs-install/x86_64/include/*",
+                    "${workspaceFolder}/../nos_common/local-install/x86_64/include/*"
+                ]
+            },
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "gnu++17",

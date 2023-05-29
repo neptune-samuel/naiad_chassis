@@ -12,11 +12,14 @@
  * @copyright Copyright (c) 2023
  * 
  */
+
+#include <sys/stat.h>
+
 #include <string>
 #include <docopt/docopt.h>
 
 #include <common/main_option.h>
-#include <spdlog/logger.h>
+#include <common/logger.h>
 
 namespace nos 
 {
@@ -31,6 +34,13 @@ namespace chassis
 class LocalOption: public nos::MainOption
 {
 public:    
+
+    /// @brief  一些常量
+    static const std::string SerialPort;
+    static const std::string Baudrate;
+    static const std::string LogLevel;
+    static const std::string DebugTcpPort;
+
     /**
      * @brief Construct a new Local Option object
      * 
@@ -52,14 +62,33 @@ public:
     {
         // 本地检查选项的准确性
         // 检查 日志选项是否合法
-        if (get_log_level() == spdlog::level::off)
+        if (get_log_level() == slog::LogLevel::None)
         {
-            std::cout << "***No such log level: " << args_[option_log_level].asString() << std::endl;
+            std::cout << "***Invalid or empty log-level: " << get_string(LogLevel) << std::endl;
             return false;
         }
 
-        // 检查串口设备是否存在
-        auto port = args_[option_serial_port].asString();
+        // 检查是否有默认值
+        if (!test_option(DebugTcpPort))
+        {
+            std::cout << "***usage error: no default value for '" << DebugTcpPort << "'" << std::endl;            
+            return false;
+        }
+
+        if (!test_option(SerialPort))
+        {
+            std::cout << "***usage error: no default value for '" << SerialPort << "'" << std::endl;            
+            return false;
+        }
+
+        if (!test_option(Baudrate))
+        {
+            std::cout << "***usage error: no default value for '" << Baudrate << "'" << std::endl;            
+            return false;
+        }
+
+        // 检查串口设备是否存在    
+        auto port = get_string(SerialPort);
 
         struct stat buf;
         if (::stat(port.c_str(), &buf) != 0)
@@ -74,39 +103,36 @@ public:
     /**
      * @brief 如果返回 spdlog::level::off, 表示有误
      * 
-     * @return spdlog::level::level_enum 
+     * @return slog::LogLevel
      */
-    spdlog::level::level_enum get_log_level()
+    slog::LogLevel get_log_level()
     {
-
-        /*
-            const std::string levels[] = {"trace", "debug", "info", "warning", "error"};
-            const int num_levels = sizeof(levels) / sizeof(levels[0]);
-
-            bool is_level(const std::string& str) {
-                return std::find(levels, levels + num_levels, str) != levels + num_levels;
-            }        
-        */
         const std::string levels[] = {"trace", "debug", "info", "warning", "error"};
         const std::string short_levels [] = {"t", "d", "i", "w", "e"};
-        const spdlog::level::level_enum log_levels[] = {
-                spdlog::level::level_enum::trace,
-                spdlog::level::level_enum::debug,
-                spdlog::level::level_enum::info,
-                spdlog::level::level_enum::warn,
-                spdlog::level::level_enum::err  
+        const slog::LogLevel log_levels[] = {
+                    slog::LogLevel::Trace,
+                    slog::LogLevel::Debug,
+                    slog::LogLevel::Info,
+                    slog::LogLevel::Warning,
+                    slog::LogLevel::Error,
                 }; 
 
         int level_num = sizeof(levels) / sizeof(levels[0]);
 
-        auto opt = args_[option_log_level].asString();
+        if (!args_[LogLevel])
+        {
+            std::cout << "***usage error: no default value for '-L'" << std::endl;
+            return slog::LogLevel::None;
+        }
+
+        std::string opt = args_[LogLevel].asString();
 
         for (int i = 0; i < level_num; ++ i)
         {
             if (short_levels[i] == opt)
             {
-                return log_levels[i];
-            }
+               return log_levels[i];
+           }
         }
 
         for (int i = 0; i < level_num; ++ i)
@@ -117,14 +143,8 @@ public:
             }
         }
 
-        return spdlog::level::off;
+        return slog::LogLevel::None;
     }
-
-    /// @brief  一些常量
-    const std::string option_serial_port = "-s";
-    const std::string option_serial_rate = "-r";
-    const std::string option_log_level = "-L";
-    const std::string option_debug_tcp_port = "-d";
 
 private:
     /**
@@ -135,25 +155,30 @@ private:
     const char * get_usage()
     {
         static const char usage[] = 
-        R"(  
-        Usage: 
-            nos_chassis [options]
+R"(  
+Usage: 
+    nos_chassis [options]
 
-        Options:
-            -h, --help     Show this help.
-            -v, --version  Show version info.
-            -s SERIAL      Set serial device. [default:/dev/ttyUSB0]
-            -r RATE        Set baudrate of serial port. [default:115200]
-            -d PORT        Set debug tcp listen port. [default:9600]
-            -L LEVEL       Set the logging level.
-                            Available options: trace, debug, info, warning, error
-                            [default: info]
-        )";
+Options:
+    -h, --help     Show this help.
+    -v, --version  Show version info.
+    -s SERIAL      Set serial device. [default: /dev/ttyS1]
+    -r RATE        Set baudrate of serial port. [default: 115200]
+    -d PORT        Set debug tcp listen port. [default: 9600]
+    -L LEVEL       Set the logging level.
+                    Available options: trace, debug, info, warning, error
+                    [default: info]
+)";
 
         return usage;
     }
 
 };
+
+const std::string LocalOption::SerialPort = "-s";
+const std::string LocalOption::Baudrate = "-r";
+const std::string LocalOption::LogLevel = "-L";
+const std::string LocalOption::DebugTcpPort = "-d";
 
 } // end chassis 
 
