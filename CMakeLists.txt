@@ -1,9 +1,18 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin
 #
 # cmake rules for nos_common
 # Author: LiuChuansen
 # Date: 20230512
 # 
+<<<<<<< HEAD
 # 
+=======
+
+
+>>>>>>> origin
 cmake_minimum_required(VERSION 3.13)
 
 project(nos_chassis)

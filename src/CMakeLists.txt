@@ -10,6 +10,7 @@ message(STATUS "=> find LIB_NOSCOMMON=${LIB_NOSCOMMON}")
 add_executable(${EXECUTABLE_NAME} main.cpp sacp_client.cpp)
 target_include_directories(${EXECUTABLE_NAME} PRIVATE ${LOCAL_LIBS_DIR}/sacp/include)
 target_link_libraries(${EXECUTABLE_NAME} uv_a docopt_s ${LIB_NOSCOMMON} fmt::fmt sacp)
+target_compile_definitions()
 add_dependencies(${EXECUTABLE_NAME} sacp)
 
 ## set install 
