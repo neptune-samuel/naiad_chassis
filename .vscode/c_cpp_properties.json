@@ -17,7 +17,27 @@
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-x64",
             "configurationProvider": "ms-vscode.cmake-tools"
-        }
+        },
+        {
+            "name": "Linux-Ros2",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../../install/nos_library/include/*",
+                "${workspaceFolder}/../../install/nos_common/include/*",
+                "${workspaceFolder}/libs/sacp/include/*",
+                "/opt/ros/foxy/include"
+            ],
+            "defines": [
+                "__no_framework__"
+            ],
+            "browse": {
+            },
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }        
     ],
     "version": 4
 }
