@@ -103,6 +103,8 @@ public:
         {
             case OperationStatus::Ok:
                 return "Ok";
+            case OperationStatus::Going:
+                return "Going";
             case OperationStatus::NoAttributes:
                 return "NoAttributes";    
             case OperationStatus::TooManyAttributes:
@@ -164,11 +166,11 @@ public:
         /// 调试TCP端口
         int debug_tcp_port)         
         : serial_(serial_device),
-        serial_options_(serial_options),             
         debug_tcp_("tcp-debug", "0.0.0.0", debug_tcp_port),
+        serial_options_(serial_options),
+        main_loop_(uv::Loop::Type::New),
         serial_stream_("serial"),
-        debug_tcp_stream_("tcp-debug"),
-        main_loop_(uv::Loop::Type::New)
+        debug_tcp_stream_("tcp-debug")
     {
         name_ = "sacp-" + serial_.name();
     }
@@ -265,16 +267,15 @@ private:
         }
 
         Transaction(
-            std::string const &from,
             uint32_t req_id, 
             std::unique_ptr<sacp::Frame> &frame) 
             : state(State::Pending),
             status(OperationStatus::Ok),
-            request_id(req_id),              
-            queue_time(nos::system::uptime()), 
-            tx_time(0), rx_time(0), end_time(0),
+            request_id(req_id),
             req_frame(std::move(frame)),
-            ack_frame(nullptr)
+            ack_frame(nullptr),            
+            queue_time(nos::system::uptime()), 
+            tx_time(0), rx_time(0), end_time(0)
         {
 
         }
@@ -287,11 +288,11 @@ private:
             std::vector<sacp::Attribute> const & attributes) 
             : state(State::Pending),
             status(OperationStatus::Ok),
-            request_id(req_id),              
-            queue_time(nos::system::uptime()), 
-            tx_time(0), rx_time(0), end_time(0),
+            request_id(req_id),  
             req_frame(std::make_unique<sacp::Frame>(from, priority, (uint8_t)req_id, op_code, attributes)),
-            ack_frame(nullptr)
+            ack_frame(nullptr),
+            queue_time(nos::system::uptime()), 
+            tx_time(0), rx_time(0), end_time(0)            
         {
 
         }

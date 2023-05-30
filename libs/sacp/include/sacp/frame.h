@@ -54,10 +54,11 @@ public:
         uint8_t sequence, 
         OpCode op_code, 
         std::vector<Attribute> const & attributes) 
-        : from_(from), origin_(nos::system::uptime()), 
-        priority_(priority),
+        : from_(from),
         sequence_(sequence),
+        priority_(priority),        
         op_code_(op_code),
+        origin_(nos::system::uptime()), 
         attributes_(attributes) { }
 
     Frame(
@@ -90,7 +91,7 @@ public:
     /// @param size 大小
     /// @return 返回实际的长度
     ///  0 - 生成失败  
-    int make_raw_frame(uint8_t *data, int size);
+    std::size_t make_raw_frame(uint8_t *data, std::size_t size);
 
     /// @brief 返回报文类型
     /// @return 
@@ -120,9 +121,9 @@ public:
     }
 
     /// @brief 最大属性数量
-    static const int MaxAttributeNum;
+    static const std::size_t MaxAttributeNum;
     /// @brief 最大帧长度
-    static const int MaxFrameSize;
+    static const std::size_t MaxFrameSize;
 private:
     // 来自哪里
     std::string from_;

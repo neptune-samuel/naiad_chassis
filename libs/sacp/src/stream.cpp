@@ -100,7 +100,7 @@ uint8_t Stream::stream_pop()
     return ret;
 }
 
-int Stream::stream_size()
+std::size_t Stream::stream_size()
 {
     std::lock_guard<std::mutex> lock(stream_mutex_);  
     return stream_head_.size() + stream_.size();
@@ -112,7 +112,7 @@ int Stream::stream_size()
  * 
  * @return int 
  */
-int Stream::frames_num()
+std::size_t Stream::frames_num()
 {
     // 先处理报文
     parse_frame();
@@ -128,7 +128,7 @@ int Stream::frames_num()
  * @param size 
  * @return int 
  */
-int Stream::input(uint8_t const *data, int size)
+std::size_t Stream::input(uint8_t const *data, int size)
 {
     // 检查上次接收数据是否超时
     // 只有大于0，才启用超时清除机制
@@ -223,7 +223,7 @@ void Stream::parse_frame()
             slog::trace_data(buffer_.get(), parsed_size_, "-> header check failed:");
 
             // 出错了，需要重新找头部
-            for (int i = 1; i < sizeof(sacpHeader_t) ; i ++)
+            for (std::size_t i = 1; i < sizeof(sacpHeader_t) ; i ++)
             {
                 stream_push_front(buffer_[i]);
             }
@@ -253,7 +253,7 @@ void Stream::parse_frame()
     }
 
     // 先获取所有数据
-    for (int i = 0; i < frame_size - sizeof(*hdr); ++ i)
+    for (std::size_t i = 0; i < frame_size - sizeof(*hdr); ++ i)
     {
         buffer_[parsed_size_] = stream_pop();
         ++ parsed_size_;
@@ -270,7 +270,7 @@ void Stream::parse_frame()
 
         // 这里处理粘包问题，CRC出错的可能是丢包了，这样我需要把头部以下数据放回去，可以保证下一个帧正常接收 
         // 放回几个字节即可，比如2字节
-        for (int i = parsed_size_ - 4; i < parsed_size_; ++ i)
+        for (std::size_t i = parsed_size_ - 4; i < parsed_size_; ++ i)
         {
             stream_push_front(buffer_[i]);
         }

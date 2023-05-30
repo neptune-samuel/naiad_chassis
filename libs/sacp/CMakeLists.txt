@@ -2,7 +2,7 @@
 ## 设定可执行文件名称
 set(LIBRARY_NAME sacp)
 
-set(LIBSACP_DIR ${PROJECT_SOURCE_DIR}/libs/libsacp)
+set(LIBSACP_DIR ${LOCAL_LIBS_DIR}/libsacp)
 
 add_library(${LIBRARY_NAME} 
     ${LIBSACP_DIR}/portable.c 

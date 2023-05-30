@@ -80,7 +80,7 @@ void SacpClient::stop()
 void SacpClient::dump()
 {
     // 显示串口的信息
-    nos::driver::SerialStatistics stats = { 0 };
+    nos::driver::SerialStatistics stats = { };
     serial_.get_statistics(stats);
 
     slog::info("- serial statistics -");
@@ -400,8 +400,8 @@ void SacpClient::transaction_task()
         {
             case Transaction::State::Pending:
             {
-                uint8_t frame[sacp::Frame::MaxFrameSize * 2];
-                int frame_size = head->req_frame->make_raw_frame(frame, sizeof(frame));
+                uint8_t frame[sacp::Frame::MaxFrameSize >> 1] = { };
+                std::size_t frame_size = head->req_frame->make_raw_frame(frame, sizeof(frame));
                 /// 处理错误
                 if ((frame_size > sacp::Frame::MaxFrameSize) || (frame_size == 0)){
                     head->state = Transaction::State::Failed;
@@ -409,7 +409,7 @@ void SacpClient::transaction_task()
                 } else {
                     head->tx_time = nos::system::uptime();
                     // 发送到串口
-                    int ret = serial_.write(frame, frame_size);
+                    std::size_t ret = serial_.write(frame, frame_size);
                     if (ret != frame_size)
                     {
                         slog::warning("serial({}) write return unexpected size, got:{}, expect:{}", serial_.name(), ret, frame_size);                
@@ -432,6 +432,9 @@ void SacpClient::transaction_task()
                     head->status = OperationStatus::Timeout;
                 }
             }
+            break;
+            default:
+            break;
         }
 
         // 是否状态改变了
@@ -504,7 +507,7 @@ void SacpClient::main_task()
         // 当串口数据准备好时
         uint8_t buf[256];
 
-        slog::trace("get serial notify");
+        slog::trace("get serial notify, id={}", (int)id);
 
         int size = serial_.async_read(buf, sizeof(buf));    
         if (size > 0){
@@ -589,7 +592,7 @@ void SacpClient::main_task()
                             continue;
                         }
                         // 放入队列中
-                        pending_transactions_.emplace(std::make_unique<Transaction>("tcp", get_request_id(), frame));
+                        pending_transactions_.emplace(std::make_unique<Transaction>(get_request_id(), frame));
                         // 告诉发送子线程有任务来了
                         transaction_sync_.notify_one();
                     }

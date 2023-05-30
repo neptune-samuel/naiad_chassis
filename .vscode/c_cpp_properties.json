@@ -4,23 +4,19 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/../nos_common/libs-install/x86_64/include/*",
-                "${workspaceFolder}/../nos_common/local-install/x86_64/include/*",
+                "${workspaceFolder}/../install/x86_64/include/*",
                 "${workspaceFolder}/libs/sacp/include/*"
             ],
             "defines": [
                 "__no_framework__"
             ],
             "browse": {
-                "path": [
-                    "${workspaceFolder}/../nos_common/libs-install/x86_64/include/*",
-                    "${workspaceFolder}/../nos_common/local-install/x86_64/include/*"
-                ]
             },
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

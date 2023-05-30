@@ -25,8 +25,8 @@
 namespace sacp {
 
 
-const int Frame::MaxAttributeNum = CONFIG_SACP_MAX_ATTRIBUTES_PER_FRAME;
-const int Frame::MaxFrameSize = CONFIG_SACP_MAX_FRAME_SIZE;
+const std::size_t Frame::MaxAttributeNum = CONFIG_SACP_MAX_ATTRIBUTES_PER_FRAME;
+const std::size_t Frame::MaxFrameSize = CONFIG_SACP_MAX_FRAME_SIZE;
 
 /// @brief 添加一个属性
 /// @param attr 
@@ -87,10 +87,10 @@ bool Frame::is_empty()
 /// @param size 大小
 /// @return 返回实际的长度
 ///  0 - 生成失败  
-int Frame::make_raw_frame(uint8_t *data, int size)
+std::size_t Frame::make_raw_frame(uint8_t *data, std::size_t size)
 { 
-    sacpAttribute_t attrs[MaxAttributeNum] = { 0 };
-    int num = 0;
+    sacpAttribute_t attrs[MaxAttributeNum] = { };
+    std::size_t num = 0;
 
     if (attributes_.size() > MaxAttributeNum)
     {

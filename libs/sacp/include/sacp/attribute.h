@@ -228,19 +228,19 @@ private:
 
         std::string to_hex() const
         {
-            char buffer[Attribute::MaxOctetSize * 3];
+            char buffer[512];
             
             #define tohex(_h) (((_h) > 9) ? (((_h) - 10) + 'A') : ((_h) + '0'))
 
             sprintf(buffer, "(%d)", len_);
 
             int n = strlen(buffer);
-            for (int i = 0; (i < len_) && (n < sizeof(buffer) - 1); i ++)
+            for (int i = 0; (i < len_) && (n < (int)(sizeof(buffer) - 1)); i ++)
             {
                 buffer[n ++] = tohex((data_[i] >> 4) & 0x0f);
                 buffer[n ++] = tohex(data_[i] & 0x0f);
             }
-            buffer[n] = '\0';
+            buffer[n] = '\0';            
 
             return std::string(buffer);
         }

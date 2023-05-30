@@ -57,7 +57,7 @@ int main(int argc, const char *argv[])
     nos::chassis::SacpClient sacp(opt.get_string(opt.SerialPort), std::to_string(opt.get_int(opt.Baudrate)), opt.get_int(opt.DebugTcpPort));
 
     // 注册信号处理函数
-    auto signal_handle = [&sacp](uv::Loop &loop, int signum){            
+    auto signal_handle = [&sacp](uv::Loop &loop, [[maybe_unused]]int signum){            
             sacp.stop();
             loop.stop();
         };
@@ -74,7 +74,7 @@ int main(int argc, const char *argv[])
     uv::Timer timer;
     timer.bind(loop);
 
-    timer.start(100, [&](uv::Timer &self){
+    timer.start(100, [&]([[maybe_unused]]uv::Timer &self){
 
         // 同步请求
         auto result = sacp.read_attributes("ros", sacp::Frame::Priority::PriorityLowest, {
@@ -97,7 +97,7 @@ int main(int argc, const char *argv[])
     uv::Timer timer_test;
     timer_test.bind(loop);
 
-    timer_test.start(5000, [&](uv::Timer &self){
+    timer_test.start(5000, [&]([[maybe_unused]]uv::Timer &self){
 
         static uint8_t lifter_position = 0;
         // 同步请求

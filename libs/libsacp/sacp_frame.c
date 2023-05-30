@@ -574,6 +574,12 @@ sacpFrameInfo_t *sacpFrameParse(const uint8_t *frame, uint16_t frameSize)
     int octetDataSize = 0;
     sacpFrameInfo_t *frameInfo = NULL;   
 
+    // check frame size
+    if (frameSize < (sizeof(*hdr) + hdr->dataSize + 2))
+    {
+        return NULL;
+    }
+
     // 获取属性数量 
     if (opCode == SACP_OP_READ)
     {

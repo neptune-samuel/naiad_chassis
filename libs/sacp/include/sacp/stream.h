@@ -44,7 +44,7 @@ public:
      * @param size 
      * @return int 
      */
-    int input(uint8_t const *data, int size);
+    std::size_t input(uint8_t const *data, int size);
 
 
     /**
@@ -52,7 +52,7 @@ public:
      * 
      * @return int 
      */
-    int frames_num();
+    std::size_t frames_num();
 
     /**
      * @brief 从FIFO中接收一个数据帧
@@ -71,7 +71,7 @@ private:
     /// 帧FIFO
     std::queue<std::unique_ptr<Frame>> frames_;
     /// 最多缓存的帧数据 
-    int max_frame_num_;
+    std::size_t max_frame_num_;
     std::mutex stream_mutex_;
     std::mutex frames_mutex_;
 
@@ -81,8 +81,8 @@ private:
 
     // 接收缓存 
     std::unique_ptr<uint8_t[]> buffer_;
-    int buffer_size_;
-    int parsed_size_;
+    unsigned int buffer_size_ = 0;
+    unsigned int parsed_size_ = 0;
 
     /// 解析一次帧
     void parse_frame();
@@ -103,7 +103,7 @@ private:
 
     /// @brief 返回流的长度
     /// @return 
-    int stream_size();
+    std::size_t stream_size();
 };
 
 
