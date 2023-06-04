@@ -13,7 +13,7 @@ add_library(${LIBRARY_NAME}
     )
 
 target_compile_definitions(${LIBRARY_NAME} PRIVATE __no_framework__ __build_arch64__)
-target_include_directories(${LIBRARY_NAME} PRIVATE ${LOCAL_LIBS_DIR} include)
+target_include_directories(${LIBRARY_NAME} PRIVATE ${LOCAL_LIBS_DIR} ${WS_INSTALL_PREFIX}/include include )
 
 ## set install 
 install(TARGETS ${LIBRARY_NAME} DESTINATION lib)

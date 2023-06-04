@@ -1,21 +1,17 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> origin
 #
 # cmake rules for nos_common
 # Author: LiuChuansen
 # Date: 20230512
 # 
-<<<<<<< HEAD
 # 
-=======
-
-
->>>>>>> origin
 cmake_minimum_required(VERSION 3.13)
 
-project(nos_chassis)
+project(naiad_chassis VERSION 0.1)
+
+set(RULES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rules)
+set(LOCAL_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
+
+include(${RULES_DIR}/ws_common.cmake)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -32,57 +28,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra)
 endif()
 
-## 得到工作空间的根目录，通过ROS的环境变量判断
-if (NOT ROS_DISABLE)
-execute_process(COMMAND "printenv" "ROS_DISTRO" OUTPUT_VARIABLE ROS_DISTRO)
-string(REPLACE "\n" "" ROS_DISTRO "${ROS_DISTRO}")
-endif()
-
-if (ROS_DISTRO STREQUAL "foxy")
-set(ROS_FOXY  ON)
-set(ROS2 ON)
-get_filename_component(WS_ROOT_DIR ${PROJECT_SOURCE_DIR}/../../ ABSOLUTE)
-else()
-get_filename_component(WS_ROOT_DIR ${PROJECT_SOURCE_DIR}/../ ABSOLUTE)
-endif()
-
-message(STATUS "=> WS_ROOT_DIR=${WS_ROOT_DIR}")
-message(STATUS "=> ROS_DISTRO=${ROS_DISTRO}")
-message(STATUS "=> ROS_FOXY=${ROS_FOXY}")
-
-## 设定工作空间安装目录
-if (NOT WS_INSTALL_PREFIX)
-if (ROS2)
-set(WS_INSTALL_PREFIX      ${WS_ROOT_DIR}/install/${PROJECT_NAME})
-else()
-set(WS_INSTALL_PREFIX      ${WS_ROOT_DIR}/install/${CMAKE_SYSTEM_PROCESSOR})
-endif()
-endif()
-
-## 添加依赖的第三方库目录
-if (ROS2)
-set(WS_LIBRARY_PREFIX ${WS_ROOT_DIR}/install/nos_library)
-set(WS_COMMON_PREFIX ${WS_ROOT_DIR}/install/nos_common)
-else()
-set(WS_LIBRARY_PREFIX ${WS_INSTALL_PREFIX})
-set(WS_COMMON_PREFIX ${WS_INSTALL_PREFIX})
-endif()
-
-## 设定默认的安装目录
-## 如果没有设定INSTALL_PREFIX, 默认安装到工作空间
-if (NOT ROS2)
-if (NOT INSTALL_PREFIX)
-set(CMAKE_INSTALL_PREFIX ${WS_INSTALL_PREFIX})
-else()
-set(CMAKE_INSTALL_PREFIX ${INSTALL_PREFIX})
-endif()
-endif()
-
-message(STATUS "=> WS_INSTALL_PREFIX=${WS_INSTALL_PREFIX}")
-message(STATUS "=> WS_LIBRARY_PREFIX=${WS_LIBRARY_PREFIX}")
-message(STATUS "=> CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
-
-if (ROS2)
+if (WS_ROS)
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -97,26 +43,36 @@ if(BUILD_TESTING)
   #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-
 endif()
 
-set(LOCAL_LIBS_DIR ${PROJECT_SOURCE_DIR}/libs)
+## ROS环境下，安装目录由ROS指定, 非ROS环境下，需自行设定默认安装目录
+if (NOT WS_ROS)
+set(CMAKE_INSTALL_PREFIX ${WS_INSTALL_PREFIX})
+endif()
 
-find_package(libuv REQUIRED PATHS ${WS_LIBRARY_PREFIX})
-find_package(spdlog REQUIRED PATHS ${WS_LIBRARY_PREFIX})
-find_package(fmt REQUIRED PATHS ${WS_LIBRARY_PREFIX})
-find_package(docopt REQUIRED PATHS ${WS_LIBRARY_PREFIX})
+find_package(libuv REQUIRED PATHS ${WS_INSTALL_PREFIX})
+if (NOT WS_ROS)
+find_package(spdlog REQUIRED PATHS ${WS_INSTALL_PREFIX})
+endif()
+find_package(fmt REQUIRED PATHS ${WS_INSTALL_PREFIX})
+find_package(docopt REQUIRED PATHS ${WS_INSTALL_PREFIX})
+
+find_package(common REQUIRED PATHS ${WS_INSTALL_PREFIX})
+
+message(STATUS "=> found spdlog : ${spdlog_VERSION}")
+message(STATUS "=> found libuv  : ${libuv_VERSION}")
+message(STATUS "=> found docopt : ${docopt_VERSION}")
+message(STATUS "=> found fmt    : ${fmt_VERSION}")
+message(STATUS "=> found common : ${common_VERSION}")
 
 ## set default include folder
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
-    ${WS_LIBRARY_PREFIX}/include
-    ${WS_COMMON_PREFIX}/include
+    ${WS_INSTALL_PREFIX}/include
     )
 
 ## add local libs dir
-link_directories(${WS_LIBRARY_PREFIX}/lib)
-
+link_directories(${WS_INSTALL_PREFIX}/lib)
 ## add libs/sacp
 add_subdirectory(${LOCAL_LIBS_DIR}/sacp)
 
@@ -126,6 +82,6 @@ add_subdirectory(src)
 # add test
 #add_subdirectory(test)
 
-if (ROS2)
+if (WS_ROS)
 ament_package()
 endif()

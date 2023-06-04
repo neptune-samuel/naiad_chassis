@@ -24,7 +24,7 @@
 #include <chassis/local_option.h>
 #include <chassis/sacp_client.h>
 
-#define APP_NAME  "nos_chassis"
+#define APP_NAME  "naiad_chassis"
 
 #define APP_VERSION  APP_NAME " v1.0"
 
@@ -48,7 +48,7 @@ int main(int argc, const char *argv[])
     }
 
     // 先初始化日志
-    slog::make_logger(APP_NAME, opt.get_log_level());
+    slog::make_spdlog_logger(APP_NAME, opt.get_log_level());
     slog::info("{} started, build time: {} {}", APP_VERSION,  __DATE__, __TIME__);
 
     //spdlog::enable_backtrace(32);
