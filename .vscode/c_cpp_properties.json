@@ -22,8 +22,7 @@
             "name": "Linux-Ros2",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/../../install/nos_library/include/*",
-                "${workspaceFolder}/../../install/nos_common/include/*",
+                "${workspaceFolder}/../../install/include/*",
                 "${workspaceFolder}/libs/sacp/include/*",
                 "/opt/ros/foxy/include"
             ],

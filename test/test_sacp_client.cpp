@@ -38,7 +38,7 @@
 int main(int argc, const char *argv[])
 {
     // 解析参数
-    auto opt = nos::chassis::LocalOption(APP_VERSION, argc, argv);
+    auto opt = naiad::chassis::LocalOption(APP_VERSION, argc, argv);
     // 显示参数
     //opt.dump();
 
@@ -48,13 +48,13 @@ int main(int argc, const char *argv[])
     }
 
     // 先初始化日志
-    slog::make_spdlog_logger(APP_NAME, opt.get_log_level());
+    slog::make_stdout_logger(APP_NAME, opt.get_log_level());
     slog::info("{} started, build time: {} {}", APP_VERSION,  __DATE__, __TIME__);
 
     //spdlog::enable_backtrace(32);
     uv::Loop loop;
     // 创建一个sacp客户端实例
-    nos::chassis::SacpClient sacp(opt.get_string(opt.SerialPort), std::to_string(opt.get_int(opt.Baudrate)), opt.get_int(opt.DebugTcpPort));
+    naiad::chassis::SacpClient sacp(opt.get_string(opt.SerialPort), std::to_string(opt.get_int(opt.Baudrate)), opt.get_int(opt.DebugTcpPort));
 
     // 注册信号处理函数
     auto signal_handle = [&sacp](uv::Loop &loop, [[maybe_unused]]int signum){            
@@ -126,7 +126,4 @@ int main(int argc, const char *argv[])
 
     return 0;
 }
-
-
-
 

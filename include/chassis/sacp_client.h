@@ -1,7 +1,7 @@
 
 
-#ifndef __NOS_SACP_CLIENT_H__
-#define __NOS_SACP_CLIENT_H__
+#ifndef __NAIAD_SACP_CLIENT_H__
+#define __NAIAD_SACP_CLIENT_H__
 
 /**
  * @file sacp_client.h
@@ -31,7 +31,7 @@
 #include <sacp/frame.h>
 
 
-namespace nos
+namespace naiad
 {
 
 namespace chassis
@@ -274,7 +274,7 @@ private:
             request_id(req_id),
             req_frame(std::move(frame)),
             ack_frame(nullptr),            
-            queue_time(nos::system::uptime()), 
+            queue_time(naiad::system::uptime()), 
             tx_time(0), rx_time(0), end_time(0)
         {
 
@@ -291,7 +291,7 @@ private:
             request_id(req_id),  
             req_frame(std::make_unique<sacp::Frame>(from, priority, (uint8_t)req_id, op_code, attributes)),
             ack_frame(nullptr),
-            queue_time(nos::system::uptime()), 
+            queue_time(naiad::system::uptime()), 
             tx_time(0), rx_time(0), end_time(0)            
         {
 
@@ -308,13 +308,13 @@ private:
         /// 响应数据
         std::unique_ptr<sacp::Frame> ack_frame;
         /// 建立时间
-        nos::system::SysTick queue_time;
+        naiad::system::SysTick queue_time;
         /// 发送时间
-        nos::system::SysTick tx_time;
+        naiad::system::SysTick tx_time;
         /// 接收时间
-        nos::system::SysTick rx_time;
+        naiad::system::SysTick rx_time;
         /// 结束时间, 请示完成后，保存时间指定时长删除它
-        nos::system::SysTick end_time;
+        naiad::system::SysTick end_time;
         /// 是否已过期？
         bool outdated = false;
 
@@ -324,9 +324,9 @@ private:
 
     std::string name_;
     /// 主串口
-    nos::driver::SerialPort serial_;
+    naiad::driver::SerialPort serial_;
     /// 调试使用的TCP服务
-    nos::network::TcpServer debug_tcp_;
+    naiad::network::TcpServer debug_tcp_;
     /// 串口选项 
     std::string serial_options_;
     /// 主循环
@@ -401,8 +401,8 @@ private:
 
 } // end chassis
 
-} // end nos
+} // end naiad
 
 
-#endif // __NOS_SACP_CLIENT_H__
+#endif // __NAIAD_SACP_CLIENT_H__
 

@@ -58,7 +58,7 @@ public:
         sequence_(sequence),
         priority_(priority),        
         op_code_(op_code),
-        origin_(nos::system::uptime()), 
+        origin_(naiad::system::uptime()), 
         attributes_(attributes) { }
 
     Frame(
@@ -115,7 +115,7 @@ public:
         return attributes_;
     }
 
-    nos::system::SysTick const & origin() const 
+    naiad::system::SysTick const & origin() const 
     {
         return origin_;
     }
@@ -134,7 +134,7 @@ private:
     OpCode op_code_;
 
     /// 插入的时间点
-    nos::system::SysTick origin_;
+    naiad::system::SysTick origin_;
 
     /// 所有有属性
     std::vector<Attribute> attributes_;

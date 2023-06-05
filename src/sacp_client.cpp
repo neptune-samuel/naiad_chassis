@@ -24,7 +24,7 @@
 #include <chassis/sacp_client.h>
 
 
-namespace nos 
+namespace naiad 
 {
 
 namespace chassis 
@@ -80,7 +80,7 @@ void SacpClient::stop()
 void SacpClient::dump()
 {
     // 显示串口的信息
-    nos::driver::SerialStatistics stats = { };
+    naiad::driver::SerialStatistics stats = { };
     serial_.get_statistics(stats);
 
     slog::info("- serial statistics -");
@@ -407,7 +407,7 @@ void SacpClient::transaction_task()
                     head->state = Transaction::State::Failed;
                     head->status = (!frame_size) ? OperationStatus::MakeFrameFailed : OperationStatus::FrameSizeTooLarge;
                 } else {
-                    head->tx_time = nos::system::uptime();
+                    head->tx_time = naiad::system::uptime();
                     // 发送到串口
                     std::size_t ret = serial_.write(frame, frame_size);
                     if (ret != frame_size)
@@ -446,12 +446,12 @@ void SacpClient::transaction_task()
         // 帧结束了，将它转到结束队列中
         if ((head->state == Transaction::State::Success) || (head->state == Transaction::State::Failed)){
             // 标记完成时间
-            head->end_time = nos::system::uptime();
+            head->end_time = naiad::system::uptime();
 
             if (head->state == Transaction::State::Success){
                 slog::debug("Request({}) completed, takes {} ms, transfer time: {} ms", head->request_id, 
-                    nos::system::time_diff(head->end_time, head->queue_time),
-                    nos::system::time_diff(head->rx_time, head->tx_time));
+                    naiad::system::time_diff(head->end_time, head->queue_time),
+                    naiad::system::time_diff(head->rx_time, head->tx_time));
 
                 // 操作成功，设置结果
                 head->promise.set_value(OperationResult(head->ack_frame->attributes()));
@@ -673,7 +673,7 @@ void SacpClient::main_task()
 //     auto sub_thread = std::thread(SacpClient::transaction_task, this);
 
 
-//     nos::system::SysTick test_tick;
+//     naiad::system::SysTick test_tick;
 
 //     while(main_running_)
 //     {
@@ -748,7 +748,7 @@ void SacpClient::main_task()
 //         if (test_tick.is_after(1000))
 //         {
 //             slog::info("send request");
-//             test_tick = nos::system::uptime();
+//             test_tick = naiad::system::uptime();
 
 //             submit_request("self", sacp::Frame::Priority::PriorityLowest, sacp::Frame::OpCode::Read,
 //                  {

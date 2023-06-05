@@ -1,5 +1,5 @@
 #
-# cmake rules for nos_common
+# cmake rules for naiad_chassis
 # Author: LiuChuansen
 # Date: 20230512
 # 
@@ -10,6 +10,7 @@ project(naiad_chassis VERSION 0.1)
 
 set(RULES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rules)
 set(LOCAL_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs)
+set(LOCAL_SRCS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 include(${RULES_DIR}/ws_common.cmake)
 
@@ -68,19 +69,23 @@ message(STATUS "=> found common : ${common_VERSION}")
 ## set default include folder
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
-    ${WS_INSTALL_PREFIX}/include
-    )
+    ${WS_INSTALL_PREFIX}/include)
 
+if (WS_ROS)
+include_directories(    
+    ${ROS_ROOT_DIR}/include)
+endif()
+    
 ## add local libs dir
 link_directories(${WS_INSTALL_PREFIX}/lib)
 ## add libs/sacp
 add_subdirectory(${LOCAL_LIBS_DIR}/sacp)
 
 ## add src 
-add_subdirectory(src)
+#add_subdirectory(src)
 
 # add test
-#add_subdirectory(test)
+add_subdirectory(test)
 
 if (WS_ROS)
 ament_package()

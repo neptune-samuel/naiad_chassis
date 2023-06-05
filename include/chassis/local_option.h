@@ -21,7 +21,7 @@
 #include <common/main_option.h>
 #include <common/logger.h>
 
-namespace nos 
+namespace naiad 
 {
 
 namespace chassis
@@ -31,7 +31,7 @@ namespace chassis
  * @brief 本地选项处理
  * 
  */
-class LocalOption: public nos::MainOption
+class LocalOption: public naiad::MainOption
 {
 public:    
 

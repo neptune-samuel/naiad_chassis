@@ -3,7 +3,7 @@
 <package format="3">
   <name>naiad_chassis</name>
   <version>0.1.0</version>
-  <description>NAIAD Chassis package </description>
+  <description>NAIAD chassis package </description>
   <maintainer email="samule@neptune-robotics.com">xxx</maintainer>
   <license>TODO: License declaration</license>
 
