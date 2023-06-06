@@ -40,6 +40,8 @@ enum class Attribute::Type : uint8_t
 /// 静态常量，OCTET最大长度
 const int Attribute::MaxOctetSize = 128;
 
+const Attribute Attribute::ZeroAttribute(0);
+
 /**
  * @brief 返回类型名称
  * 
@@ -250,6 +252,33 @@ bool from_sacp_attribute(Attribute &attr, void *ptr)
 }
 
 
+/**
+ * @brief 批量增加属性的ID
+ * 
+ * @param attrs 
+ * @param offset 
+ */
+void increase_attributes_id(std::vector<Attribute> & attrs, size_t offset)
+{
+    for (auto & v : attrs)
+    {
+        v.id_ += offset;
+    }
+}
+
+/**
+ * @brief 批量减少属性的ID
+ * 
+ * @param attrs 
+ * @param offset 
+ */
+void decrease_attributes_id(std::vector<Attribute> & attrs, size_t offset)
+{
+    for (auto & v : attrs)
+    {
+        v.id_ -= offset;
+    }
+}
 
 
 

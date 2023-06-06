@@ -24,10 +24,7 @@
 #include <chassis/sacp_client.h>
 
 
-namespace naiad 
-{
-
-namespace chassis 
+namespace sacp 
 {
 
 const int SacpClient::MaxTransactionNum = 64;
@@ -162,7 +159,7 @@ std::unique_ptr<SacpClient::OperationResult> SacpClient::get_result(uint32_t id,
     {
         auto  &trans = pending_transactions_.front();
 
-        slog::debug("find in pending request, id:{}", trans->request_id);
+        slog::trace("find in pending request, id:{}", trans->request_id);
 
         if (trans->request_id == id)
         {
@@ -173,7 +170,7 @@ std::unique_ptr<SacpClient::OperationResult> SacpClient::get_result(uint32_t id,
 
     for (auto & trans : completed_transactions_)
     {
-        slog::debug("find in completed request, id:{}", trans->request_id);        
+        slog::trace("find in completed request, id:{}", trans->request_id);        
         if (trans->request_id == id)
         {
             lock.unlock();
@@ -181,10 +178,10 @@ std::unique_ptr<SacpClient::OperationResult> SacpClient::get_result(uint32_t id,
         }
     }
 
-    slog::debug("both not found");
+    slog::trace("both not found");
 
     // 返回没有找到
-    return std::make_unique<OperationResult>(OperationStatus::TransactionNoFound);
+    return std::make_unique<OperationResult>(OperationStatus::TransactionNotFound);
 }
 
 
@@ -206,7 +203,7 @@ std::unique_ptr<SacpClient::OperationResult> SacpClient::read_attributes(
         return std::make_unique<OperationResult>(ret);
     }
 
-    slog::debug("get request id:{}", request_id);
+    slog::trace("get request id:{}", request_id);
 
     return get_result(request_id, true);
 }
@@ -400,6 +397,8 @@ void SacpClient::transaction_task()
         {
             case Transaction::State::Pending:
             {
+                slog::debug("UART-TX: {}", head->req_frame->info());
+
                 uint8_t frame[sacp::Frame::MaxFrameSize >> 1] = { };
                 std::size_t frame_size = head->req_frame->make_raw_frame(frame, sizeof(frame));
                 /// 处理错误
@@ -528,7 +527,10 @@ void SacpClient::main_task()
                 slog::debug("UART-RX: {}", frame->info());
                 // 如果是读写响应，提交给传输事务处理
                 if (frame->type() == sacp::Frame::OpCode::Report){
-                    // TODO: 收到Report
+                    // 调用回调函数处理上报属性
+                    if (report_handle_){
+                        report_handle_(frame->attributes());
+                    }
                 } else if ((frame->type() == sacp::Frame::OpCode::ReadAck) || (frame->type() == sacp::Frame::OpCode::WriteAck)){
                     transaction_receive(frame);
                 } else if (frame->type() == sacp::Frame::OpCode::Read || frame->type() == sacp::Frame::OpCode::Write) {
@@ -776,17 +778,5 @@ void SacpClient::main_task()
 //     sub_thread.join();
 // }
 
-
-
-
-} // chassis
-
-} // nos 
-
-
-
-
-
-
-
+} // sacp 
 

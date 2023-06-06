@@ -31,10 +31,7 @@
 #include <sacp/frame.h>
 
 
-namespace naiad
-{
-
-namespace chassis
+namespace sacp
 {
 
 
@@ -83,6 +80,8 @@ class SacpClient
 
 public:
 
+    typedef std::function<void(std::vector<sacp::Attribute> const &)> ReportHandle;
+
     enum class OperationStatus : int 
     {
         Ok = 0,
@@ -94,7 +93,10 @@ public:
         Timeout,
         MakeFrameFailed,
         FrameSizeTooLarge,
-        TransactionNoFound,
+        TransactionNotFound,
+        NoSuchObject,
+        InvalidParameter,
+        InternalError,
     };
 
     static char const* OperationStatusName(OperationStatus status) 
@@ -106,21 +108,27 @@ public:
             case OperationStatus::Going:
                 return "Going";
             case OperationStatus::NoAttributes:
-                return "NoAttributes";    
+                return "No Attributes";    
             case OperationStatus::TooManyAttributes:
-                return "TooManyAttributes";
+                return "Too Many Attributes";
             case OperationStatus::OpCodeNotSupported:
-                return "OpCodeNotSupported";  
+                return "OpCode Not Supported";  
             case OperationStatus::QueueFull:
-                return "QueueFull";    
+                return "Queue Full";    
             case OperationStatus::Timeout:
                 return "Timeout";
             case OperationStatus::MakeFrameFailed:
-                return "MakeFrameFailed";                                 
+                return "Make Frame Failed";                                 
             case OperationStatus::FrameSizeTooLarge:
-                return "FrameSizeTooLarge"; 
-            case OperationStatus::TransactionNoFound:
-                return "TransactionNoFound";                    
+                return "Frame Size Too Large"; 
+            case OperationStatus::TransactionNotFound:
+                return "Transaction Not Found";      
+            case OperationStatus::NoSuchObject:
+                return "No Such Object"; 
+            case OperationStatus::InvalidParameter:
+                return "Invalid Parameter";    
+            case OperationStatus::InternalError:
+                return "Internal Error";                                                
         }
 
         return "N/A";
@@ -164,13 +172,15 @@ public:
         /// 串口速度
         std::string const & serial_options,         
         /// 调试TCP端口
-        int debug_tcp_port)         
+        int debug_tcp_port,
+        ReportHandle report_handle = nullptr)         
         : serial_(serial_device),
         debug_tcp_("tcp-debug", "0.0.0.0", debug_tcp_port),
         serial_options_(serial_options),
         main_loop_(uv::Loop::Type::New),
         serial_stream_("serial"),
-        debug_tcp_stream_("tcp-debug")
+        debug_tcp_stream_("tcp-debug"),
+        report_handle_(report_handle)
     {
         name_ = "sacp-" + serial_.name();
     }
@@ -186,6 +196,13 @@ public:
 
     /// @brief 停止客户端
     void stop();
+
+    /// @brief 客户端是否正在运行
+    /// @return 
+    bool is_running()
+    {
+        return started_;
+    }
 
     /// @brief 显示一些信息
     void dump();
@@ -350,6 +367,8 @@ private:
     std::queue<std::unique_ptr<Transaction>> pending_transactions_;
     std::vector<std::unique_ptr<Transaction>> completed_transactions_;
 
+    ReportHandle report_handle_;
+
     /// @brief 返回请求ID
     uint32_t get_request_id()
     {
@@ -397,11 +416,7 @@ private:
 
 };
 
-
-
-} // end chassis
-
-} // end naiad
+} // end sacp
 
 
 #endif // __NAIAD_SACP_CLIENT_H__

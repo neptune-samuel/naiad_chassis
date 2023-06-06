@@ -107,6 +107,7 @@ public:
      */
     static char const *TypeName(Type type);
     static const int MaxOctetSize;
+    static const Attribute ZeroAttribute;
 
 private:
     /// 基本类型的联合体
@@ -292,6 +293,9 @@ private:
     // 转换为C类型的属性
     friend bool to_sacp_attribute(Attribute const & attr, void *ptr);
     friend bool from_sacp_attribute(Attribute &attr, void *ptr);
+    // 批量修改属性ID
+    friend void increase_attributes_id(std::vector<Attribute> & attrs, size_t offset);
+    friend void decrease_attributes_id(std::vector<Attribute> & attrs, size_t offset);    
 };
 
 /**
@@ -314,6 +318,58 @@ bool to_sacp_attribute(Attribute const & attr, void *ptr);
  */
 bool from_sacp_attribute(Attribute &attr, void *ptr);
 
+/**
+ * @brief 批量增加属性的ID
+ * 
+ * @param attrs 
+ * @param offset 
+ */
+void increase_attributes_id(std::vector<Attribute> & attrs, size_t offset);
+
+/**
+ * @brief 批量减少属性的ID
+ * 
+ * @param attrs 
+ * @param offset 
+ */
+void decrease_attributes_id(std::vector<Attribute> & attrs, size_t offset);
+
+
+/**
+ * @brief 查找属性，返回一个可读写的迭代器
+ * 
+ * @param attrs 
+ * @param id 
+ * @return std::vector<Attribute>::iterator 
+ */
+std::vector<Attribute>::iterator find_attribute(std::vector<Attribute> & attrs, uint16_t id)
+{
+    return std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
+            return (attr.id() == id); 
+        });
+}
+
+
+/**
+ * @brief 返回一个只读的属性常量，如果属性不存在，返回空属性，用于属性读
+ * 
+ * @param attrs 
+ * @param id 
+ * @return Attribute const& 
+ */
+Attribute const & get_attribute(std::vector<Attribute> const & attrs, uint16_t id)
+{
+    auto it = std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
+        return (attr.id() == id);
+    });
+
+    if (it != attrs.end())
+    {
+        return *it;
+    }
+
+    return Attribute::ZeroAttribute;
+}
 
 } // end sacp
 
