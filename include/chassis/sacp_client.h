@@ -87,6 +87,7 @@ public:
         Ok = 0,
         Going, // 正在处理中
         NoAttributes,
+        FewAttributesMissed,
         TooManyAttributes,
         OpCodeNotSupported,
         QueueFull,
@@ -109,6 +110,8 @@ public:
                 return "Going";
             case OperationStatus::NoAttributes:
                 return "No Attributes";    
+            case OperationStatus::FewAttributesMissed:
+                return "FewAttributesMissed";
             case OperationStatus::TooManyAttributes:
                 return "Too Many Attributes";
             case OperationStatus::OpCodeNotSupported:

@@ -227,6 +227,11 @@
 
 /* 属性组 - lifter */
 
+#define ATTR_LIFTER_A_ARRAY_SIZE        25
+#define ATTR_LIFTER_A_MODEL_ID          600
+#define ATTR_LIFTER_A_SN_ID             601
+#define ATTR_LIFTER_A_HW_VERSION_ID     602 
+
 #define ATTR_LIFTER_A_MODEL(_val) 		sacp::Attribute(600, _val) 		/* 600  ATTR_LIFTER_A_MODEL                      octet  RD */
 #define ATTR_LIFTER_A_SN(_val) 		sacp::Attribute(601, _val) 		/* 601  ATTR_LIFTER_A_SN                         octet  RD */
 #define ATTR_LIFTER_A_HW_VERSION(_val) 		sacp::Attribute(602, (uint16_t)_val) 		/* 602  ATTR_LIFTER_A_HW_VERSION                 uint16_t RD */

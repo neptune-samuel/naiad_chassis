@@ -19,6 +19,14 @@
 
 namespace sacp {
 
+/// 声明属性ID匹配组
+typedef std::vector<uint16_t> AttributeIdPattern;
+
+// 声明属性类
+class Attribute;
+// 声明属性组
+typedef std::vector<Attribute> AttributeArray;
+
 class Attribute
 {
 public:
@@ -84,6 +92,11 @@ public:
         return id_;
     }
 
+    /// @brief 判断属性类型是否一致
+    /// @param attr 
+    /// @return bool 
+    bool type_match(Attribute const & attr) const;
+
     bool get_bool() const { return value_.bool_value; }
     uint8_t get_uint8() const { return value_.uint8_value; }
     int8_t get_int8() const { return value_.int8_value; }
@@ -97,7 +110,7 @@ public:
     int64_t get_int64() const { return value_.int64_value; }
     uint8_t get_status() const { return value_.uint8_value; }
     const uint8_t *get_octet() const { return octet_value_.data(); }
-
+    std::string get_string() const { return octet_value_.to_string(); }
 
     /**
      * @brief 静态函数，获取类型名称
@@ -246,7 +259,7 @@ private:
             return std::string(buffer);
         }
 
-        std::string to_string()const 
+        std::string to_string() const 
         {
             if (len_ == 0)
             {
@@ -294,8 +307,8 @@ private:
     friend bool to_sacp_attribute(Attribute const & attr, void *ptr);
     friend bool from_sacp_attribute(Attribute &attr, void *ptr);
     // 批量修改属性ID
-    friend void increase_attributes_id(std::vector<Attribute> & attrs, size_t offset);
-    friend void decrease_attributes_id(std::vector<Attribute> & attrs, size_t offset);    
+    friend void increase_attributes_id(AttributeArray& attrs, size_t offset);
+    friend void decrease_attributes_id(AttributeArray& attrs, size_t offset);    
 };
 
 /**
@@ -324,7 +337,7 @@ bool from_sacp_attribute(Attribute &attr, void *ptr);
  * @param attrs 
  * @param offset 
  */
-void increase_attributes_id(std::vector<Attribute> & attrs, size_t offset);
+void increase_attributes_id(AttributeArray& attrs, size_t offset);
 
 /**
  * @brief 批量减少属性的ID
@@ -332,7 +345,7 @@ void increase_attributes_id(std::vector<Attribute> & attrs, size_t offset);
  * @param attrs 
  * @param offset 
  */
-void decrease_attributes_id(std::vector<Attribute> & attrs, size_t offset);
+void decrease_attributes_id(AttributeArray& attrs, size_t offset);
 
 
 /**
@@ -342,7 +355,7 @@ void decrease_attributes_id(std::vector<Attribute> & attrs, size_t offset);
  * @param id 
  * @return std::vector<Attribute>::iterator 
  */
-std::vector<Attribute>::iterator find_attribute(std::vector<Attribute> & attrs, uint16_t id)
+std::vector<Attribute>::iterator find_attribute(AttributeArray& attrs, uint16_t id)
 {
     return std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
             return (attr.id() == id); 
@@ -357,7 +370,7 @@ std::vector<Attribute>::iterator find_attribute(std::vector<Attribute> & attrs, 
  * @param id 
  * @return Attribute const& 
  */
-Attribute const & get_attribute(std::vector<Attribute> const & attrs, uint16_t id)
+Attribute const & get_attribute(AttributeArray const & attrs, uint16_t id)
 {
     auto it = std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
         return (attr.id() == id);
@@ -369,6 +382,69 @@ Attribute const & get_attribute(std::vector<Attribute> const & attrs, uint16_t i
     }
 
     return Attribute::ZeroAttribute;
+}
+
+
+/**
+ * @brief 
+ * 
+ * @param attrs 
+ * @param id 
+ * @return Attribute const& 
+ */
+
+/**
+ * @brief Get the attribute object
+ * 
+ * @param attrs 
+ * @param pattern 
+ * @param id_offset 
+ * @param print_log 
+ * @return Attribute const& 
+ */
+
+/**
+ * @brief 返回一个只读的属性常量, 如果有错误，将错误计数加1
+ * 
+ * @param attrs 待读取的属性列表
+ * @param failed_count 错误计数
+ * @param pattern 属性影子
+ * @param id_offset ID偏移量
+ * @param print_log 是否打印日志
+ * @return Attribute const& 
+ */
+Attribute const & get_attribute(
+    AttributeArray const & attrs, 
+    size_t failed_count,
+    Attribute const &pattern, 
+    size_t id_offset = 0, bool print_log = true)
+{
+    uint16_t id = pattern.id() + id_offset;
+    auto it = std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
+        return (attr.id() == id);
+    });
+
+    if (it == attrs.end())
+    {
+        failed_count ++;
+
+        if (print_log)
+        {
+            slog::warning("attribute[{}] missed, please check", id);
+        }
+
+        return Attribute::ZeroAttribute;
+    }
+
+    //是否类型相同
+    if (!pattern.type_match(*it)) 
+    {
+        slog::warning("attribute[{}] type unmatched, got {}, expect {}");
+        failed_count ++;
+        return Attribute::ZeroAttribute;
+    }
+
+    return *it;
 }
 
 } // end sacp

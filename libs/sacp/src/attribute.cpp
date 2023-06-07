@@ -133,6 +133,12 @@ int Attribute::size() const
     return 0;
 }
 
+
+bool Attribute::type_match(Attribute const & attr) const
+{
+    return (attr.type_ == type_);
+}
+
 bool to_sacp_attribute(Attribute const & attr, void *ptr)
 {
     if (ptr == nullptr)
