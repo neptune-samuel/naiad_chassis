@@ -12,33 +12,20 @@
  * @copyright Copyright (c) 2023
  * 
  */
+
 #include <string>
 #include <chrono>
 #include "rclcpp/rclcpp.hpp"
 #include "common/logger.h"
+#include "chassis/sacp_client.h"
+#include "chassis/chassis_type.h"
 
-#include "naiad_interfaces/msg/main_controller_info.hpp"
-#include "naiad_interfaces/msg/main_controller_state.hpp"
-#include "naiad_interfaces/srv/main_controller_set_time.hpp"
-#include "naiad_interfaces/srv/main_controller_get_info.hpp"
 
 namespace naiad 
 {
 
 namespace chassis
 {
-
-using MsgContrllerInfo = naiad_interfaces::msg::MainControllerInfo;
-using MsgContrllerState = naiad_interfaces::msg::MainControllerState;
-
-using SrvControllerSetTime = naiad_interfaces::srv::MainControllerSetTime;
-using SrvControllerGetInfo = naiad_interfaces::srv::MainControllerGetInfo;
-
-using SrvControllerSetTimeRequest = naiad_interfaces::srv::MainControllerSetTime_Request;
-using SrvControllerSetTimeResponse = naiad_interfaces::srv::MainControllerSetTime_Response;
-using SrvControllerGetInfoRequest = naiad_interfaces::srv::MainControllerGetInfo_Request;
-using SrvControllerGetInfoResponse = naiad_interfaces::srv::MainControllerGetInfo_Response;
-
 
 /*
 列出运行参数
@@ -59,17 +46,16 @@ $ ros2 param list
 class NodeChassis:public rclcpp::Node 
 {
 public:
-
-    /**
-     * @brief 定义一个类内的参数类型
-     * 
-     */
+    /// 定义一个类内的参数类型
     struct Parameters
     {
         std::string serial_port;
         std::string serial_options;
         int debug_tcp_port;
     };
+
+    // 上报回调函数
+    typedef std::function<void(uint8_t group, std::vector<sacp::Attribute> const & attributes)> SacpReportHandle;
 
     // 构造函数
     NodeChassis(std::string const &name);
@@ -80,56 +66,71 @@ public:
         return parameters_;
     }
 
-    /**
-     * @brief 返回SACP客户端
-     * 
-     * @return std::shared_ptr<sacp::SacpClient> 
-     */
-    std::shared_ptr<sacp::SacpClient> get_sacp_client()
+    /// 返回控制器信息
+    MsgControllerInfo const &get_controller_info() const
     {
-        return sacp_client_;
+        return controller_info_;
     }
 
-    /**
-     * @brief 发布控制器的状态
-     * 
-     * @param state 
-     */
-    void report_controller_state(MsgContrllerState & state);
-
-    /**
-     * @brief 获取控制器的信息
-     * 
-     * @param info 
-     * @return true 
-     * @return false 
-     */
-    bool get_controller_info(MsgContrllerInfo &info);
+    /// @brief 返回SACP客户端
+    /// @return 
+    std::shared_ptr<sacp::SacpClient> get_sacp_client() 
+    {
+        return sacp_client_;
+    } 
 
 
-    /**
-     * @brief 同步主控的RTC时间
-     * 
-     * @return true 
-     * @return false 
-     */
-    bool sync_controller_rtc_time();
+    bool start_sacp_client(SacpReportHandle report_handle)
+    {
+        report_handle_ = report_handle;
+        return sacp_client_->start();
+    }
+
+    void stop_sacp_client()
+    {
+        sacp_client_->stop();
+    }
 
 private:
     /// 参数
     Parameters parameters_;
-    /// SACP客户端
-    std::shared_ptr<sacp::SacpClient> sacp_client_;     
-    /// 定时器
-    //rclcpp::TimerBase::SharedPtr timer_;    
     /// 日志接口
-    std::shared_ptr<slog::Logger> log_;
+    std::shared_ptr<slog::Logger> log_;    
+    /// SACP客户端
+    std::shared_ptr<sacp::SacpClient> sacp_client_;  
+    
+    /// SACP上报处理函数
+    SacpReportHandle report_handle_ = nullptr;
+
+    /// 定时器
+    rclcpp::TimerBase::SharedPtr timer_;    
+
+    /// 主控信息发布
+    rclcpp::Publisher<MsgControllerInfo>::SharedPtr info_publisher_;    
     /// 主控状态发布
-    rclcpp::Publisher<MsgContrllerState>::SharedPtr state_publisher_;    
+    rclcpp::Publisher<MsgControllerState>::SharedPtr state_publisher_;    
     /// 获取主控信息服务
-    rclcpp::Service<SrvControllerGetInfo>::SharedPtr service_get_info_;
+    rclcpp::Service<SrvControllerGetInfo>::SharedPtr info_service_;
     /// 获取主控信息服务
     // rclcpp::Service<SrvControllerSetTime>::SharedPtr service_set_time_;
+
+    // 异步调用结果, 不需要使用，但必须全局有效保留，不然的话异步会变成同步执行
+    // std::future<void> async_task_; 
+    // /// 异步任务状态
+    // bool async_task_running_ = false;   
+
+    // 控制器信息
+    MsgControllerInfo controller_info_;
+
+    bool rtc_time_synced = false;
+    bool controller_info_synced = false;
+
+    // 定时处理函数
+    void timer_handle(void);
+
+    // 上报报文处理
+    void sacp_report_handle(std::vector<sacp::Attribute> const & attributes);
+
 };
 
 

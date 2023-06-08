@@ -18,7 +18,12 @@
 
 #include "chassis/sacp_client.h"
 #include "chassis/node_chassis.h"
-#include "chassis/node_peripheral.h"
+#include "chassis/node_lifter.h"
+#include "chassis/node_powerbox.h"
+#include "chassis/node_pushbox.h"
+#include "chassis/node_pumpbox.h"
+#include "chassis/node_fogbox.h"
+#include "chassis/node_ledlight.h"
 
 namespace naiad 
 {
@@ -49,19 +54,6 @@ private:
     std::shared_ptr<NodePushBox> node_pushbox_;
     std::shared_ptr<NodeLedLight> node_ledlight_;
     std::shared_ptr<NodeLifter> node_lifter_;
-
-    std::shared_ptr<sacp::SacpClient> sacp_client_; 
-
-    // 外围设备服务
-    rclcpp::Service<SrvLifterSetPosition>::SharedPtr service_set_lifter_position_; 
-    rclcpp::Service<SrvLedLightSetBrightness>::SharedPtr service_set_ledlight_brightness_;
-    rclcpp::Service<SrvPushBoxControl>::SharedPtr service_pushbox_control_;
-    rclcpp::Service<SrvPushBoxSetOfflineConfig>::SharedPtr service_pushbox_set_offline_config_;
-    rclcpp::Service<SrvPushBoxGetOfflineConfig>::SharedPtr service_pushbox_get_offline_config_;
-
-    /// @brief 处理SACP上报的回调函数
-    /// @param attributes 
-    void sacp_report_handle(std::vector<sacp::Attribute> const & attributes);   
 
 };
 

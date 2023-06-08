@@ -13,11 +13,9 @@
  * @copyright Copyright (c) 2023
  * 
  */
-
-#include "local_attributes.h"
 #include "attribute_helper.h"
 #include "chassis/sacp_client.h"
-#include "chassis/node_peripheral.h"
+#include "chassis/chassis_type.h"
 
 
 namespace robot{

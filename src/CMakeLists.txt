@@ -13,7 +13,7 @@ set(ROBOT_N1_SRCS
     robot_n1/pushbox_request.cpp)
 
 add_executable(${CHASSIS_NAME} main.cpp sacp_client.cpp node_chassis.cpp node_manager.cpp ${ROBOT_N1_SRCS})
-target_include_directories(${CHASSIS_NAME} PRIVATE ${LOCAL_LIBS_DIR}/sacp/include)
+target_include_directories(${CHASSIS_NAME} PRIVATE ${LOCAL_LIBS_DIR}/sacp/include ${LOCAL_SRCS_DIR})
 add_dependencies(${CHASSIS_NAME} sacp)
 ament_target_dependencies(${CHASSIS_NAME} rclcpp naiad_interfaces)
 target_link_libraries(${CHASSIS_NAME} fmt::fmt sacp common uv_a)

@@ -13,7 +13,7 @@
 #include "local_attributes.h"
 #include "attribute_helper.h"
 #include "chassis/sacp_client.h"
-#include "chassis/node_peripheral.h"
+#include "chassis/chassis_type.h"
 
 
 namespace robot{
@@ -180,7 +180,7 @@ bool parse_pushbox_device_state(sacp::AttributeArray const &attrs,
  * @return false 
  */
 bool parse_pushbox_offline_config(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad_interfaces::srv::PushboxGetOfflineConfig_Response &config)
+   uint8_t & address, naiad::chassis::SrvPushBoxGetOfflineConfigResponse &config)
 {
 
     const sacp::AttributeArray pattern = 
@@ -289,7 +289,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> read_pushbox_info(
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> get_pushbox_offline_config(
     std::shared_ptr<sacp::SacpClient> client, 
-     [[maybe_unused]]uint8_t address, naiad_interfaces::srv::PushboxGetOfflineConfig_Response & config)
+     [[maybe_unused]]uint8_t address, naiad::chassis::SrvPushBoxGetOfflineConfigResponse & config)
 {
     if (!client->is_running())
     {
@@ -335,7 +335,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> get_pushbox_offline_config(
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> set_pushbox_offline_config(
     std::shared_ptr<sacp::SacpClient> client, 
-     [[maybe_unused]]uint8_t address, naiad_interfaces::srv::PushboxSetOfflineConfig_Request const & config)
+     [[maybe_unused]]uint8_t address, naiad::chassis::SrvPushBoxSetOfflineConfigRequest const & config)
 {
     if (!client->is_running())
     {

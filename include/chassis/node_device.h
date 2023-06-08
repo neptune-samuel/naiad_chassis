@@ -17,21 +17,19 @@
 #include <future>
 
 #include "common/logger.h"
+#include "chassis/sacp_client.h"
+
 #include "rclcpp/rclcpp.hpp"
-#include "naiad_interfaces/msg/device_info.hpp"
+#include "chassis/chassis_type.h"
 
 namespace naiad 
 {
-
 namespace chassis
 {
 
-/// 类型重定义
-using MsgDeviceId = naiad_interfaces::msg::DeviceId;
-using MsgDeviceBreif = naiad_interfaces::msg::DeviceBrief;
-using MsgAdminStatus = naiad_interfaces::msg::AdminStatus;
-using MsgDeviceInfo = naiad_interfaces::msg::DeviceInfo;
 
+/// @brief  一个模板设备类
+/// @tparam DeviceStateType 
 template<typename DeviceStateType>
 class NodeDevice: public rclcpp::Node 
 {
@@ -44,15 +42,10 @@ public:
         OnlineWithAlarm = 2,
     };
 
-    /// 一个回调函数，更新设备信息
-    typedef std::function<bool(uint8_t address, MsgDeviceInfo & info)> FunctionGetDeviceInfo;
-
-    NodeDevice(std::string const & type, FunctionGetDeviceInfo get_device_info = nullptr): 
+    NodeDevice(std::string const & type): 
         rclcpp::Node("naiad_" + type), 
-        type_(type), function_get_device_info_(get_device_info)
+        type_(type)
     {        
-        //clock_ = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
-        //log_ = slog::make_ros_logger(type_); 
 
         info_publisher_ = this->create_publisher<MsgDeviceInfo>(type + "/info", 10);
         state_publisher_ = this->create_publisher<DeviceStateType>(type + "/state", 10);
@@ -63,17 +56,23 @@ public:
 
     }
 
-    // 返回设备类型
-    std::string const & get_device_type()
+    /// @brief 处理上报文
+    /// @param attributes 
+    virtual void report_handle([[maybe_unused]]uint8_t group, [[maybe_unused]]std::vector<sacp::Attribute> const & attributes)
     {
-        return type_;
-    }
+        // TODO
+    } 
 
-
-    void set_device_info_update_function(FunctionGetDeviceInfo function)
+    /// @brief  主动获取设备信息
+    /// @param address 
+    /// @param info 
+    /// @return 
+    virtual bool get_device_info([[maybe_unused]]uint8_t address, [[maybe_unused]]MsgDeviceInfo & info)
     {
-        function_get_device_info_ = function;
+        return false;
     }
+       
+protected:
 
     void set_device_brief(uint8_t address, MsgDeviceBreif const &brief)
     {
@@ -91,7 +90,7 @@ public:
             dev.device_id.address = address; 
 
             {
-                std::lock_guard<std::mutex> lock(devices_mutex_);
+                //std::lock_guard<std::mutex> lock(devices_mutex_);
                 devices_.emplace_back(dev); 
             }
 
@@ -150,6 +149,7 @@ public:
         }
     }
 
+    // 上报设备的状态
     void report_device_state(uint8_t address, DeviceStateType &state)
     {
         // 更新设备状态，必须是已存在设备
@@ -177,46 +177,10 @@ public:
         }
     }
 
-protected:
-    std::string type_;
-
-    // 创建一个慢速定时器
-    //rclcpp::TimerBase::SharedPtr timer_;
-
-    // 互斥信号量
-    std::mutex devices_mutex_; 
-
-    // 设备实例列表    
-    std::vector<MsgDeviceInfo> devices_;
-
-    // logger
-    std::shared_ptr<slog::Logger> log_;
-
-    // 创建一个基本信息发布
-    rclcpp::Publisher<MsgDeviceInfo>::SharedPtr info_publisher_;
-    std::shared_ptr<rclcpp::Publisher<DeviceStateType>> state_publisher_;
-
-    // 更新设备信息的函数
-    FunctionGetDeviceInfo function_get_device_info_;
-
-    // 异步调用结果, 不需要使用，但必须全局有效保留，不然的话异步会变成同步执行
-    std::future<void> async_result_;    
-
-    //需更新的设备信息的地址
-    std::vector<uint8_t> care_device_address_;
-
-    // 异步处理是否在运行
-    bool async_running_ = false;
-
     /// @brief 启动设备信息同步
     /// @param address 
     void update_device_info_async(uint8_t address)
     {
-        // 如果没有设置获取设备信息的函数，直接返回
-        if (!function_get_device_info_){
-            return ;
-        }
-
         for (auto addr : care_device_address_){
             // 如果已在里面了，直接退出
             if (addr == address){
@@ -239,7 +203,7 @@ protected:
                 for (int i = 0; i < num; i ++){
                     MsgDeviceInfo info;
                     uint8_t address = care_device_address_[i];
-                    if (function_get_device_info_(address, info)){
+                    if (get_device_info(address, info)){
                         set_device_brief(address, info.device_brief);
                         report_admin_status(address, info.admin_status);
                         count ++;
@@ -256,6 +220,34 @@ protected:
             });
         }
     }
+protected:
+    // 类型名称
+    std::string type_;
+
+    // logger
+    //std::shared_ptr<slog::Logger> log_;
+
+    // 创建一个慢速定时器
+    //rclcpp::TimerBase::SharedPtr timer_;
+
+    // 互斥信号量
+    //std::mutex devices_mutex_; 
+
+    // 设备实例列表    
+    std::vector<MsgDeviceInfo> devices_;
+
+    // 创建一个基本信息发布
+    rclcpp::Publisher<MsgDeviceInfo>::SharedPtr info_publisher_;
+    std::shared_ptr<rclcpp::Publisher<DeviceStateType>> state_publisher_;
+
+    // 异步调用结果, 不需要使用，但必须全局有效保留，不然的话异步会变成同步执行
+    std::future<void> async_result_;    
+
+    //需更新的设备信息的地址
+    std::vector<uint8_t> care_device_address_;
+
+    // 异步处理是否在运行
+    bool async_running_ = false;
 
 };
 

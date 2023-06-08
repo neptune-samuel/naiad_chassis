@@ -15,7 +15,6 @@
  * 
  */
 
-#include "local_attributes.h"
 #include "attribute_helper.h"
 #include "chassis/sacp_client.h"
 #include "chassis/node_chassis.h"
@@ -34,7 +33,7 @@ namespace n1
  * @return true 
  * @return false 
  */
-bool parse_controller_info(sacp::AttributeArray const &attrs, naiad::chassis::MsgContrllerInfo &info);
+bool parse_controller_info(sacp::AttributeArray const &attrs, naiad::chassis::MsgControllerInfo &info);
 
 /**
  * @brief 解析控制器的状态
@@ -45,7 +44,7 @@ bool parse_controller_info(sacp::AttributeArray const &attrs, naiad::chassis::Ms
  * @return true 
  * @return false 
  */
-bool parse_controller_status(sacp::AttributeArray const &attrs, naiad::chassis::MsgContrllerState &state);
+bool parse_controller_status(sacp::AttributeArray const &attrs, naiad::chassis::MsgControllerState &state);
 
 /// @brief 同步MCU的RTC的时间
 /// @param client 
@@ -59,7 +58,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> set_controller_rtc_time(
 /// @param info
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> get_controller_info(
-    std::shared_ptr<sacp::SacpClient> client, naiad::chassis::MsgContrllerInfo & info);
+    std::shared_ptr<sacp::SacpClient> client, naiad::chassis::MsgControllerInfo & info);
 
     
 }
