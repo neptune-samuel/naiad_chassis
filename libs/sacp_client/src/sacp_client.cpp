@@ -614,7 +614,7 @@ void SacpClient::main_task()
     // 使用一个定时器，做一些状态管理
     // uv::Timer main_timer;
 
-    // main_timer.bind(main_loop_, [this](uv::Timer & self){
+    // main_timer.bind(main_loop_, [this](){
         
     //     uint32_t request_id = 0;
     //     // 定时做一些测试

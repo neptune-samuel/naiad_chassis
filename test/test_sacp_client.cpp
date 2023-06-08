@@ -21,8 +21,9 @@
 #include <common/tcp_server.h>
 #include <common/serial_port.h>
 
-#include <chassis/local_option.h>
 #include <chassis/sacp_client.h>
+
+#include "local_option.h"
 
 #define APP_NAME  "naiad_chassis"
 
@@ -38,7 +39,7 @@
 int main(int argc, const char *argv[])
 {
     // 解析参数
-    auto opt = naiad::chassis::LocalOption(APP_VERSION, argc, argv);
+    auto opt = LocalOption(APP_VERSION, argc, argv);
     // 显示参数
     //opt.dump();
 
@@ -54,11 +55,11 @@ int main(int argc, const char *argv[])
     //spdlog::enable_backtrace(32);
     uv::Loop loop;
     // 创建一个sacp客户端实例
-    naiad::chassis::SacpClient sacp(opt.get_string(opt.SerialPort), std::to_string(opt.get_int(opt.Baudrate)), opt.get_int(opt.DebugTcpPort));
 
+    auto sacp_client = std::make_shared<sacp::SacpClient>(opt.get_string(opt.SerialPort), std::to_string(opt.get_int(opt.Baudrate)), opt.get_int(opt.DebugTcpPort));
+    
     // 注册信号处理函数
-    auto signal_handle = [&sacp](uv::Loop &loop, [[maybe_unused]]int signum){            
-            sacp.stop();
+    auto signal_handle = [](uv::Loop &loop, [[maybe_unused]]int signum){            
             loop.stop();
         };
 
@@ -68,59 +69,58 @@ int main(int argc, const char *argv[])
     loop.signal(SIGABRT, signal_handle);
 
     // 启动SACP服务
-    sacp.start();
+    sacp_client->start();
 
     // // 创建一个定时器，做一些事情 
-    uv::Timer timer;
-    timer.bind(loop);
+    // uv::Timer timer;
+    // timer.bind(loop);
 
-    timer.start(100, [&]([[maybe_unused]]uv::Timer &self){
+    // timer.start(100, [&](){
 
-        // 同步请求
-        auto result = sacp.read_attributes("ros", sacp::Frame::Priority::PriorityLowest, {
-                sacp::Attribute(600, ""),
-                sacp::Attribute(601, ""),
-                sacp::Attribute(602, (uint16_t)0),
-                sacp::Attribute(603, (uint16_t)0),
-                sacp::Attribute(604, (uint8_t)0),
-                sacp::Attribute(605, ""),
-                sacp::Attribute(606, (uint8_t)0),
-                sacp::Attribute(607, (uint32_t)0),
-                sacp::Attribute(608, (uint32_t)0),
-                sacp::Attribute(609, (uint8_t)0),
-                sacp::Attribute(610, (uint16_t)0),
-            });
+    //     // 同步请求
+    //     auto result = sacp.read_attributes("ros", sacp::Frame::Priority::PriorityLowest, {
+    //             sacp::Attribute(600, ""),
+    //             sacp::Attribute(601, ""),
+    //             sacp::Attribute(602, (uint16_t)0),
+    //             sacp::Attribute(603, (uint16_t)0),
+    //             sacp::Attribute(604, (uint8_t)0),
+    //             sacp::Attribute(605, ""),
+    //             sacp::Attribute(606, (uint8_t)0),
+    //             sacp::Attribute(607, (uint32_t)0),
+    //             sacp::Attribute(608, (uint32_t)0),
+    //             sacp::Attribute(609, (uint8_t)0),
+    //             sacp::Attribute(610, (uint16_t)0),
+    //         });
 
-        slog::info("read return '{}'", result->to_string());
-    });
+    //     slog::info("read return '{}'", result->to_string());
+    // });
 
-    uv::Timer timer_test;
-    timer_test.bind(loop);
+    // uv::Timer timer_test;
+    // timer_test.bind(loop);
 
-    timer_test.start(5000, [&]([[maybe_unused]]uv::Timer &self){
+    // timer_test.start(5000, [&](){
 
-        static uint8_t lifter_position = 0;
-        // 同步请求
-        if (lifter_position == 0)
-        {
-            lifter_position = 100;
-        }
-        else 
-        {
-            lifter_position = 0;
-        }
+    //     static uint8_t lifter_position = 0;
+    //     // 同步请求
+    //     if (lifter_position == 0)
+    //     {
+    //         lifter_position = 100;
+    //     }
+    //     else 
+    //     {
+    //         lifter_position = 0;
+    //     }
 
-        auto result = sacp.write_attributes("ros", sacp::Frame::Priority::PriorityHighest, {
-                sacp::Attribute(619, (uint8_t)lifter_position)
-            });
+    //     auto result = sacp.write_attributes("ros", sacp::Frame::Priority::PriorityHighest, {
+    //             sacp::Attribute(619, (uint8_t)lifter_position)
+    //         });
 
-        slog::info("write return '{}'", result->to_string());
-    });
-
+    //     slog::info("write return '{}'", result->to_string());
+    // });
 
 
     loop.spin();
-    sacp.stop();
+    sacp_client->stop();
 
     slog::warning(APP_NAME "  exited");
 

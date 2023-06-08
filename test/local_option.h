@@ -21,11 +21,6 @@
 #include <common/main_option.h>
 #include <common/logger.h>
 
-namespace naiad 
-{
-
-namespace chassis
-{
 
 /**
  * @brief 本地选项处理
@@ -162,8 +157,8 @@ Usage:
 Options:
     -h, --help     Show this help.
     -v, --version  Show version info.
-    -s SERIAL      Set serial device. [default: /dev/ttyS1]
-    -r RATE        Set baudrate of serial port. [default: 115200]
+    -s SERIAL      Set serial device. [default: /dev/ttyUSB0]
+    -r RATE        Set baudrate of serial port. [default: 460800]
     -d PORT        Set debug tcp listen port. [default: 9600]
     -L LEVEL       Set the logging level.
                     Available options: trace, debug, info, warning, error
@@ -180,8 +175,5 @@ const std::string LocalOption::Baudrate = "-r";
 const std::string LocalOption::LogLevel = "-L";
 const std::string LocalOption::DebugTcpPort = "-d";
 
-} // end chassis 
-
-} // nos 
 
 #endif // LOCAL_OPTION_H_
