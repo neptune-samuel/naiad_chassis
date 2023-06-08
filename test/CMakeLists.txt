@@ -12,4 +12,4 @@
 
 add_executable(test_vofa test_vofa.cpp)
 #target_include_directories(test_vofa PRIVATE ${LOCAL_LIBS_DIR}/sacp/include)
-target_link_libraries(test_vofa fmt::fmt common)
+target_link_libraries(test_vofa fmt::fmt common uv_a)

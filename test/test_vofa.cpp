@@ -35,7 +35,7 @@ public:
             data_cache_[id] = 0.0f;
         }
 
-        slog::info("{} : init with {} datas", name_, data_cache_.size());
+        slog::info("{}: init with {} datas", name_, data_cache_.size());
     }
 
     /// 启动该服务
@@ -106,10 +106,40 @@ private:
     {
         if (tcp_server_->is_running() && tcp_server_->connections_num() > 0)
         {
-            // 发送数据
-            // 转换为字节流
-            std::lock_guard<std::mutex> lock(data_mutex_); 
 
+            // VOFA使用浮点数据发送
+            // 数据格式为
+            // [F0][F1][F2][F3]...[END]
+            // 其中 [END] 为 0x00, 0x00, 0x80, 0x7f
+            float buf[32]; // 最多32个通道，4*8 = 32个字节
+            std::size_t num = 0;
+
+            {
+                // 转换为字节流
+                std::lock_guard<std::mutex> lock(data_mutex_); 
+                for (auto & v: data_cache_)
+                {
+                    if (num > (sizeof(buf)/sizeof(buf[0]) - 1))
+                    {
+                        break;
+                    }
+
+                    buf[num ++] = v.second;
+                }
+
+                uint8_t *end = (uint8_t *)&buf[num];
+                end[0] = 0x00;
+                end[1] = 0x00;
+                end[2] = 0x80;
+                end[3] = 0x7f;
+
+                num ++;
+            }
+
+            slog::debug_data(buf, num * sizeof(float), "{}: send {} bytes", name_, num * sizeof(float));
+
+            // 发送报文
+            tcp_server_->send(tcp_server_->AllClients, (uint8_t *)&buf[0], num * sizeof(float));
         }
     }
 
@@ -125,8 +155,7 @@ int main(int argc, const char *argv[])
 
     uv::Loop loop(uv::Loop::Type::Default);
 
-    auto signal_handle = []([[maybe_unused]]uv::Loop &loop, int signum){
-            slog::trace("-> handle {}", signum);
+    auto signal_handle = [&]([[maybe_unused]]int signum){
             loop.stop();
         };
 
@@ -152,12 +181,12 @@ int main(int argc, const char *argv[])
 
     std::map<uint32_t, float> datas;
 
-    timer.start(1000, [&]{
+    timer.start(10, [&]{
 
-            datas[1] = sin(k1);
-            datas[2] = sin(k2);
-            datas[3] = sin(k3);
-            datas[4] = sin(k4);
+            datas[1] = sin(k1 * k_step);
+            datas[2] = sin(k2 * k_step);
+            datas[3] = sin(k3 * k_step);
+            datas[4] = sin(k4 * k_step);
             
             vofa.input(datas);
 
