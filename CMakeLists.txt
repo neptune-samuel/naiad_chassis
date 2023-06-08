@@ -84,11 +84,13 @@ link_directories(${WS_INSTALL_PREFIX}/lib)
 ## add libs/sacp
 add_subdirectory(${LOCAL_LIBS_DIR}/sacp)
 
+if (WS_ROS)
 # add src 
 add_subdirectory(src)
+endif()
 
 # add test
-#add_subdirectory(test)
+add_subdirectory(test)
 
 if (WS_ROS)
 ament_package()
