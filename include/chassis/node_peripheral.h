@@ -49,16 +49,21 @@ using MsgPushBoxState = naiad_interfaces::msg::PushboxState;
 using MsgLedLightState = naiad_interfaces::msg::LedlightState;
 using MsgLifterState = naiad_interfaces::msg::LifterState;
 
+
+using SrvPushBoxControl = naiad_interfaces::srv::PushboxControl;
+using SrvPushBoxGetOfflineConfig = naiad_interfaces::srv::PushboxGetOfflineConfig;
+using SrvPushBoxSetOfflineConfig = naiad_interfaces::srv::PushboxSetOfflineConfig;
+using SrvLedLightSetBrightness = naiad_interfaces::srv::LedlightSetBrightness;
+using SrvLifterSetPosition = naiad_interfaces::srv::LifterSetPosition;
+
 using SrvPushBoxControlRequest = naiad_interfaces::srv::PushboxControl_Request;
 using SrvPushBoxControlResponse = naiad_interfaces::srv::PushboxControl_Response;
 using SrvPushBoxGetOfflineConfigRequest = naiad_interfaces::srv::PushboxGetOfflineConfig_Request;
 using SrvPushBoxGetOfflineConfigResponse = naiad_interfaces::srv::PushboxGetOfflineConfig_Response;
 using SrvPushBoxSetOfflineConfigRequest = naiad_interfaces::srv::PushboxSetOfflineConfig_Request;
 using SrvPushBoxSetOfflineConfigResponse = naiad_interfaces::srv::PushboxSetOfflineConfig_Response;
-
 using SrvLedLightSetBrightnessRequest = naiad_interfaces::srv::LedlightSetBrightness_Request;
 using SrvLedLightSetBrightnessResponse = naiad_interfaces::srv::LedlightSetBrightness_Response;
-
 using SrvLifterSetPositionRequest = naiad_interfaces::srv::LifterSetPosition_Request;
 using SrvLifterSetPositionResponse = naiad_interfaces::srv::LifterSetPosition_Response;
 
@@ -69,26 +74,6 @@ using NodePumpBox = NodeDevice<MsgPumpBoxState>;
 using NodePushBox = NodeDevice<MsgPushBoxState>;
 using NodeLedLight = NodeDevice<MsgLedLightState>;
 using NodeLifter = NodeDevice<MsgLifterState>;
-
-
-// class NodeLifter : public NodeDevice<MsgLifterState>
-// {
-// public:
-//     typedef std::function<void(const SrvLifterSetPositionRequest & req, SrvLifterSetPositionResponse & resp)> 
-
-
-//     NodeLifter(const std::string &type) : NodeDevice<MsgLifterState>(type) { }
-
-
-
-// protected:
-//     rclcpp::Service<naiad_interfaces::srv::LifterSetPosition>::SharedPtr set_position_service_; 
-
-
-// };
-
-
-
 
 }
 }

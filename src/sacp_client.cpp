@@ -426,7 +426,7 @@ void SacpClient::transaction_task()
                     head->state = Transaction::State::Success;
                     head->status = OperationStatus::Ok;
 
-                } else if (head->tx_time.is_after(20)){  // 检测超时时间是否到了
+                } else if (head->tx_time.is_after(50)){  // 检测超时时间是否到了
                     head->state = Transaction::State::Failed;
                     head->status = OperationStatus::Timeout;
                 }

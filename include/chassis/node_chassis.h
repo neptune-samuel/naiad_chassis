@@ -17,11 +17,27 @@
 #include "rclcpp/rclcpp.hpp"
 #include "common/logger.h"
 
+#include "naiad_interfaces/msg/main_controller_info.hpp"
+#include "naiad_interfaces/msg/main_controller_state.hpp"
+#include "naiad_interfaces/srv/main_controller_set_time.hpp"
+#include "naiad_interfaces/srv/main_controller_get_info.hpp"
+
 namespace naiad 
 {
 
 namespace chassis
 {
+
+using MsgContrllerInfo = naiad_interfaces::msg::MainControllerInfo;
+using MsgContrllerState = naiad_interfaces::msg::MainControllerState;
+
+using SrvControllerSetTime = naiad_interfaces::srv::MainControllerSetTime;
+using SrvControllerGetInfo = naiad_interfaces::srv::MainControllerGetInfo;
+
+using SrvControllerSetTimeRequest = naiad_interfaces::srv::MainControllerSetTime_Request;
+using SrvControllerSetTimeResponse = naiad_interfaces::srv::MainControllerSetTime_Response;
+using SrvControllerGetInfoRequest = naiad_interfaces::srv::MainControllerGetInfo_Request;
+using SrvControllerGetInfoResponse = naiad_interfaces::srv::MainControllerGetInfo_Response;
 
 
 /*
@@ -55,53 +71,65 @@ public:
         int debug_tcp_port;
     };
 
-
-    NodeChassis(std::string const &name) : rclcpp::Node(name) 
-    { 
-        //timer_ = this->create_wall_timer(std::chrono::milliseconds(1000), std::bind(&NodeChassis::test_timer, this));
-        log_ = slog::make_stdout_logger(this->get_name(), slog::LogLevel::Debug);
-
-        this->declare_parameter("serial_port", "/dev/ttyUSB0");
-        this->declare_parameter("serial_options", "460800");
-        this->declare_parameter("debug_tcp_port", 9600);
-
-        this->get_parameter("serial_port", parameters_.serial_port);
-        this->get_parameter("serial_options", parameters_.serial_options);
-        this->get_parameter("debug_tcp_port", parameters_.debug_tcp_port);
-
-        log_->info("parameter serial_port={}", parameters_.serial_port);
-        log_->info("parameter serial_options={}", parameters_.serial_options);
-        log_->info("parameter debug_tcp_port={}", parameters_.debug_tcp_port);        
-    }
+    // 构造函数
+    NodeChassis(std::string const &name);
 
     // 获取参数
-    void get_boot_parameters(Parameters &parameters) const
+    Parameters const & get_boot_parameters() const
     {
-        parameters = parameters_;
+        return parameters_;
     }
+
+    /**
+     * @brief 返回SACP客户端
+     * 
+     * @return std::shared_ptr<sacp::SacpClient> 
+     */
+    std::shared_ptr<sacp::SacpClient> get_sacp_client()
+    {
+        return sacp_client_;
+    }
+
+    /**
+     * @brief 发布控制器的状态
+     * 
+     * @param state 
+     */
+    void report_controller_state(MsgContrllerState & state);
+
+    /**
+     * @brief 获取控制器的信息
+     * 
+     * @param info 
+     * @return true 
+     * @return false 
+     */
+    bool get_controller_info(MsgContrllerInfo &info);
+
+
+    /**
+     * @brief 同步主控的RTC时间
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool sync_controller_rtc_time();
 
 private:
     /// 参数
     Parameters parameters_;
+    /// SACP客户端
+    std::shared_ptr<sacp::SacpClient> sacp_client_;     
     /// 定时器
-    rclcpp::TimerBase::SharedPtr timer_;
+    //rclcpp::TimerBase::SharedPtr timer_;    
     /// 日志接口
     std::shared_ptr<slog::Logger> log_;
-
-    // /// 测试定时器
-    // void test_timer()    
-    // {    
-    //     // int tmp_debug_tcp_port = parameter_debug_tcp_port_;
-    //     // this->get_parameter("debug_tcp_port", tmp_debug_tcp_port);
-
-    //     // if (tmp_debug_tcp_port != parameter_debug_tcp_port_)
-    //     // {
-    //     //     slog::info("parameter changed: debug_tcp_port {}->{}", parameter_debug_tcp_port_, tmp_debug_tcp_port);
-    //     //     parameter_debug_tcp_port_ = tmp_debug_tcp_port;
-    //     // }
-
-    //     slog::info("test timer handle");
-    // }
+    /// 主控状态发布
+    rclcpp::Publisher<MsgContrllerState>::SharedPtr state_publisher_;    
+    /// 获取主控信息服务
+    rclcpp::Service<SrvControllerGetInfo>::SharedPtr service_get_info_;
+    /// 获取主控信息服务
+    // rclcpp::Service<SrvControllerSetTime>::SharedPtr service_set_time_;
 };
 
 

@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include <cstring>
 
 namespace sacp {
@@ -355,7 +356,7 @@ void decrease_attributes_id(AttributeArray& attrs, size_t offset);
  * @param id 
  * @return std::vector<Attribute>::iterator 
  */
-std::vector<Attribute>::iterator find_attribute(AttributeArray& attrs, uint16_t id)
+static inline std::vector<Attribute>::iterator find_attribute(AttributeArray& attrs, uint16_t id)
 {
     return std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
             return (attr.id() == id); 
@@ -370,82 +371,7 @@ std::vector<Attribute>::iterator find_attribute(AttributeArray& attrs, uint16_t 
  * @param id 
  * @return Attribute const& 
  */
-Attribute const & get_attribute(AttributeArray const & attrs, uint16_t id)
-{
-    auto it = std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
-        return (attr.id() == id);
-    });
-
-    if (it != attrs.end())
-    {
-        return *it;
-    }
-
-    return Attribute::ZeroAttribute;
-}
-
-
-/**
- * @brief 
- * 
- * @param attrs 
- * @param id 
- * @return Attribute const& 
- */
-
-/**
- * @brief Get the attribute object
- * 
- * @param attrs 
- * @param pattern 
- * @param id_offset 
- * @param print_log 
- * @return Attribute const& 
- */
-
-/**
- * @brief 返回一个只读的属性常量, 如果有错误，将错误计数加1
- * 
- * @param attrs 待读取的属性列表
- * @param failed_count 错误计数
- * @param pattern 属性影子
- * @param id_offset ID偏移量
- * @param print_log 是否打印日志
- * @return Attribute const& 
- */
-Attribute const & get_attribute(
-    AttributeArray const & attrs, 
-    size_t failed_count,
-    Attribute const &pattern, 
-    size_t id_offset = 0, bool print_log = true)
-{
-    uint16_t id = pattern.id() + id_offset;
-    auto it = std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
-        return (attr.id() == id);
-    });
-
-    if (it == attrs.end())
-    {
-        failed_count ++;
-
-        if (print_log)
-        {
-            slog::warning("attribute[{}] missed, please check", id);
-        }
-
-        return Attribute::ZeroAttribute;
-    }
-
-    //是否类型相同
-    if (!pattern.type_match(*it)) 
-    {
-        slog::warning("attribute[{}] type unmatched, got {}, expect {}");
-        failed_count ++;
-        return Attribute::ZeroAttribute;
-    }
-
-    return *it;
-}
+Attribute const & get_attribute(AttributeArray const & attrs, uint16_t id);
 
 } // end sacp
 

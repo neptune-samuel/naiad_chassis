@@ -13,6 +13,7 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 
 #include <libsacp/sacp_type.h>
 #include <sacp/attribute.h>
@@ -286,6 +287,28 @@ void decrease_attributes_id(std::vector<Attribute> & attrs, size_t offset)
     }
 }
 
+
+
+/**
+ * @brief 返回一个只读的属性常量，如果属性不存在，返回空属性，用于属性读
+ * 
+ * @param attrs 
+ * @param id 
+ * @return Attribute const& 
+ */
+Attribute const & get_attribute(AttributeArray const & attrs, uint16_t id)
+{
+    auto it = std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
+        return (attr.id() == id);
+    });
+
+    if (it != attrs.end())
+    {
+        return *it;
+    }
+
+    return Attribute::ZeroAttribute;
+}
 
 
 } // end sacp
