@@ -30,6 +30,8 @@
 #include <sacp/stream.h>
 #include <sacp/frame.h>
 
+#include "vofa_debuger.h"
+
 
 namespace sacp
 {
@@ -66,6 +68,14 @@ namespace sacp
     //    返回帧ID
 
     // 可通过帧ID获取结果   
+
+
+    数据可视化功能:
+    使用VOFAService实现属性数据可视化功能，可以任意设定属性组合
+
+    add_vofa_service(port, period, datas)
+
+
 */
 
 /// 指定该函数为主线程使用
@@ -252,9 +262,16 @@ public:
     /// @return std::unique_ptr<OperationResult> 操作结果
     std::unique_ptr<OperationResult> get_result(uint32_t id, bool block);
 
-    /// 获取设备状态
-    // void get_device_status();
-    // void get_device_info();
+    /// @brief 创建一个VOFA数据监控服务
+    /// @param port 
+    /// @param datas 
+    /// @param period 
+    /// @return 
+    bool create_vofa_monitor_service(int port, std::vector<uint32_t> const & datas, int period);
+
+    /// @brief 删除VOFA数据监控服务
+    /// @param port 
+    void destroy_vofa_monitor_service(int port);
 
 private:
 
@@ -371,6 +388,8 @@ private:
     std::vector<std::unique_ptr<Transaction>> completed_transactions_;
 
     ReportHandle report_handle_;
+    /// @brief  VOFA的数据可视化
+    sacp::VofaDebuger vofa_debuger_;
 
     /// @brief 返回请求ID
     uint32_t get_request_id()

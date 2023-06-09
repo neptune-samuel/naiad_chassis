@@ -21,7 +21,7 @@
 #include <common/sys_time.h>
 #include <common/uv_helper.h>
 
-#include <chassis/sacp_client.h>
+#include <sacp_client/sacp_client.h>
 
 
 namespace sacp 
@@ -531,6 +531,10 @@ void SacpClient::main_task()
                     if (report_handle_){
                         report_handle_(frame->attributes());
                     }
+
+                    // 将数据放在调试服务中
+                    vofa_debuger_.input(frame->attributes());
+
                 } else if ((frame->type() == sacp::Frame::OpCode::ReadAck) || (frame->type() == sacp::Frame::OpCode::WriteAck)){
                     transaction_receive(frame);
                 } else if (frame->type() == sacp::Frame::OpCode::Read || frame->type() == sacp::Frame::OpCode::Write) {
@@ -650,6 +654,24 @@ void SacpClient::main_task()
     started_ = false;
 }
 
+
+/// @brief 创建一个VOFA数据监控服务
+/// @param port 
+/// @param datas 
+/// @param period 
+/// @return 
+bool SacpClient::create_vofa_monitor_service(int port, std::vector<uint32_t> const & datas, int period = 0)
+{
+    return vofa_debuger_.create(port, datas, period);
+}
+
+
+/// @brief 删除VOFA数据监控服务
+/// @param port 
+void SacpClient::destroy_vofa_monitor_service(int port)
+{
+    return vofa_debuger_.destroy(port);
+}
 
 
 /**

@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <typeinfo>
 #include <algorithm>
 #include <cstring>
 
@@ -77,6 +78,8 @@ public:
     {
         return Attribute::TypeName(type_);
     }
+
+    std::type_info const & type_id() const ;
 
     std::string value_string() const ;
 

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#include <typeinfo>
 
 #include <libsacp/sacp_type.h>
 #include <sacp/attribute.h>
@@ -134,6 +135,28 @@ int Attribute::size() const
     return 0;
 }
 
+std::type_info const & Attribute::type_id() const 
+{
+    switch(type_)
+    {
+        case Type::Bool: return typeid(value_.bool_value);
+        case Type::Uint8: return typeid(value_.uint8_value);
+        case Type::Int8: return typeid(value_.int8_value);
+        case Type::Uint16: return typeid(value_.uint16_value);
+        case Type::Int16: return typeid(value_.int16_value);
+        case Type::Uint32: return typeid(value_.uint32_value);
+        case Type::Int32: return typeid(value_.int32_value);
+        case Type::Float: return typeid(value_.float_value);
+        case Type::Double: return typeid(value_.double_value);
+        case Type::Uint64: return typeid(value_.uint64_value);
+        case Type::Int64: return typeid(value_.int64_value);
+        case Type::Status: return typeid(value_.uint8_value);
+        case Type::Octet: return typeid(uint8_t []);
+        default:
+            break;
+    }
+    return typeid(value_.uint8_value);
+}
 
 bool Attribute::type_match(Attribute const & attr) const
 {
