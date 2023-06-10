@@ -41,6 +41,7 @@ bool SacpClient::start()
     slog::info("{}: create working thread...", name_);
 
     main_thread_ = std::thread(&SacpClient::main_task, this);
+    main_started_ = true;
     return true;  
 }
 
@@ -63,14 +64,17 @@ void SacpClient::stop()
         slog::trace("{}: -> tell main loop exit", name_);
         // 通知主loop停止
         main_loop_.async_stop();
+    }
 
+    // 有可能主线程中直接退出了，但还是回收一次资源 
+    if (main_started_){
         slog::trace("{}: -> wait main loop exit", name_);
         // 等待线程回收
         main_thread_.join();
-
-        slog::trace("{}: -> all exit", name_);
-        started_ = false;
+        main_started_ = false;
     }
+
+    started_ = false;
 }
 
 /// @brief 显示统计信息

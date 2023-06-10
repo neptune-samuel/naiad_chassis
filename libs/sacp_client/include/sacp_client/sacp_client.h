@@ -374,6 +374,7 @@ private:
     /// 状态
     bool main_exit_ = false;
     bool started_ = false;
+    bool main_started_ = false;
 
     // sacp streams
     sacp::Stream serial_stream_;

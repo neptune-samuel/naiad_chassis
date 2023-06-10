@@ -213,8 +213,7 @@ protected:
                 slog::debug("{} {} info updated", count, this->type_);
 
                 // 清空队列 
-                decltype(care_device_address_) tmp;
-                tmp.swap(care_device_address_);
+                decltype(care_device_address_)().swap(care_device_address_);
                 
                 async_running_ = false;
             });
