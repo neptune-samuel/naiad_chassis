@@ -30,11 +30,10 @@
 #include <sacp/stream.h>
 #include <sacp/frame.h>
 
+#include "vofa_debuger.h"
 
-namespace naiad
-{
 
-namespace chassis
+namespace sacp
 {
 
 
@@ -69,6 +68,14 @@ namespace chassis
     //    返回帧ID
 
     // 可通过帧ID获取结果   
+
+
+    数据可视化功能:
+    使用VOFAService实现属性数据可视化功能，可以任意设定属性组合
+
+    add_vofa_service(port, period, datas)
+
+
 */
 
 /// 指定该函数为主线程使用
@@ -83,18 +90,24 @@ class SacpClient
 
 public:
 
+    typedef std::function<void(std::vector<sacp::Attribute> const &)> ReportHandle;
+
     enum class OperationStatus : int 
     {
         Ok = 0,
         Going, // 正在处理中
         NoAttributes,
+        FewAttributesMissed,
         TooManyAttributes,
         OpCodeNotSupported,
         QueueFull,
         Timeout,
         MakeFrameFailed,
         FrameSizeTooLarge,
-        TransactionNoFound,
+        TransactionNotFound,
+        NoSuchObject,
+        InvalidParameter,
+        InternalError,
     };
 
     static char const* OperationStatusName(OperationStatus status) 
@@ -106,21 +119,29 @@ public:
             case OperationStatus::Going:
                 return "Going";
             case OperationStatus::NoAttributes:
-                return "NoAttributes";    
+                return "No Attributes";    
+            case OperationStatus::FewAttributesMissed:
+                return "FewAttributesMissed";
             case OperationStatus::TooManyAttributes:
-                return "TooManyAttributes";
+                return "Too Many Attributes";
             case OperationStatus::OpCodeNotSupported:
-                return "OpCodeNotSupported";  
+                return "OpCode Not Supported";  
             case OperationStatus::QueueFull:
-                return "QueueFull";    
+                return "Queue Full";    
             case OperationStatus::Timeout:
                 return "Timeout";
             case OperationStatus::MakeFrameFailed:
-                return "MakeFrameFailed";                                 
+                return "Make Frame Failed";                                 
             case OperationStatus::FrameSizeTooLarge:
-                return "FrameSizeTooLarge"; 
-            case OperationStatus::TransactionNoFound:
-                return "TransactionNoFound";                    
+                return "Frame Size Too Large"; 
+            case OperationStatus::TransactionNotFound:
+                return "Transaction Not Found";      
+            case OperationStatus::NoSuchObject:
+                return "No Such Object"; 
+            case OperationStatus::InvalidParameter:
+                return "Invalid Parameter";    
+            case OperationStatus::InternalError:
+                return "Internal Error";                                                
         }
 
         return "N/A";
@@ -164,13 +185,15 @@ public:
         /// 串口速度
         std::string const & serial_options,         
         /// 调试TCP端口
-        int debug_tcp_port)         
+        int debug_tcp_port,
+        ReportHandle report_handle = nullptr)         
         : serial_(serial_device),
         debug_tcp_("tcp-debug", "0.0.0.0", debug_tcp_port),
         serial_options_(serial_options),
         main_loop_(uv::Loop::Type::New),
         serial_stream_("serial"),
-        debug_tcp_stream_("tcp-debug")
+        debug_tcp_stream_("tcp-debug"),
+        report_handle_(report_handle)
     {
         name_ = "sacp-" + serial_.name();
     }
@@ -186,6 +209,13 @@ public:
 
     /// @brief 停止客户端
     void stop();
+
+    /// @brief 客户端是否正在运行
+    /// @return 
+    bool is_running()
+    {
+        return started_;
+    }
 
     /// @brief 显示一些信息
     void dump();
@@ -232,9 +262,16 @@ public:
     /// @return std::unique_ptr<OperationResult> 操作结果
     std::unique_ptr<OperationResult> get_result(uint32_t id, bool block);
 
-    /// 获取设备状态
-    // void get_device_status();
-    // void get_device_info();
+    /// @brief 创建一个VOFA数据监控服务
+    /// @param port 
+    /// @param datas 
+    /// @param period 
+    /// @return 
+    bool create_vofa_monitor_service(int port, std::vector<uint32_t> const & datas, int period);
+
+    /// @brief 删除VOFA数据监控服务
+    /// @param port 
+    void destroy_vofa_monitor_service(int port);
 
 private:
 
@@ -337,6 +374,7 @@ private:
     /// 状态
     bool main_exit_ = false;
     bool started_ = false;
+    bool main_started_ = false;
 
     // sacp streams
     sacp::Stream serial_stream_;
@@ -349,6 +387,10 @@ private:
     std::condition_variable transaction_sync_;    
     std::queue<std::unique_ptr<Transaction>> pending_transactions_;
     std::vector<std::unique_ptr<Transaction>> completed_transactions_;
+
+    ReportHandle report_handle_;
+    /// @brief  VOFA的数据可视化
+    sacp::VofaDebuger vofa_debuger_;
 
     /// @brief 返回请求ID
     uint32_t get_request_id()
@@ -397,11 +439,7 @@ private:
 
 };
 
-
-
-} // end chassis
-
-} // end naiad
+} // end sacp
 
 
 #endif // __NAIAD_SACP_CLIENT_H__
