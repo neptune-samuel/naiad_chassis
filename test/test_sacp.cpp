@@ -111,14 +111,14 @@ static void test_stream()
 }
 
 
-int main(int argc, const char** argv)
+int main()
 {
 
     slog::make_stdout_logger("test_sacp", slog::LogLevel::Debug);
 
     //slog::info("hello world, ret=%d", 1234);
 
-    //test_attribute();
+    test_attribute();
 
     test_stream();
 

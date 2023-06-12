@@ -12,7 +12,7 @@
 
 #include "local_attributes.h"
 #include "attribute_helper.h"
-#include "chassis/sacp_client.h"
+#include "sacp_client/sacp_client.h"
 #include "chassis/chassis_type.h"
 
 

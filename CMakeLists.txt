@@ -33,6 +33,9 @@ if (WS_ROS)
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(naiad_interfaces REQUIRED PATHS ${WS_INSTALL_PREFIX})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -81,8 +84,10 @@ link_directories(${WS_INSTALL_PREFIX}/lib)
 ## add libs/sacp
 add_subdirectory(${LOCAL_LIBS_DIR}/sacp)
 
-## add src 
-#add_subdirectory(src)
+if (WS_ROS)
+# add src 
+add_subdirectory(src)
+endif()
 
 # add test
 add_subdirectory(test)
