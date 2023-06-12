@@ -27,7 +27,8 @@
                 "/opt/ros/foxy/include"
             ],
             "defines": [
-                "__no_framework__"
+                "__no_framework__",
+                "SLOG_SINK_ROS"
             ],
             "browse": {
             },

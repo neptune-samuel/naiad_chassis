@@ -13,6 +13,8 @@
 #include <vector>
 #include <iostream>
 #include <cstring>
+#include <algorithm>
+#include <typeinfo>
 
 #include <libsacp/sacp_type.h>
 #include <sacp/attribute.h>
@@ -39,6 +41,8 @@ enum class Attribute::Type : uint8_t
 
 /// 静态常量，OCTET最大长度
 const int Attribute::MaxOctetSize = 128;
+
+const Attribute Attribute::ZeroAttribute(0);
 
 /**
  * @brief 返回类型名称
@@ -129,6 +133,34 @@ int Attribute::size() const
             break;
     }
     return 0;
+}
+
+std::type_info const & Attribute::type_id() const 
+{
+    switch(type_)
+    {
+        case Type::Bool: return typeid(value_.bool_value);
+        case Type::Uint8: return typeid(value_.uint8_value);
+        case Type::Int8: return typeid(value_.int8_value);
+        case Type::Uint16: return typeid(value_.uint16_value);
+        case Type::Int16: return typeid(value_.int16_value);
+        case Type::Uint32: return typeid(value_.uint32_value);
+        case Type::Int32: return typeid(value_.int32_value);
+        case Type::Float: return typeid(value_.float_value);
+        case Type::Double: return typeid(value_.double_value);
+        case Type::Uint64: return typeid(value_.uint64_value);
+        case Type::Int64: return typeid(value_.int64_value);
+        case Type::Status: return typeid(value_.uint8_value);
+        case Type::Octet: return typeid(uint8_t []);
+        default:
+            break;
+    }
+    return typeid(value_.uint8_value);
+}
+
+bool Attribute::type_match(Attribute const & attr) const
+{
+    return (attr.type_ == type_);
 }
 
 bool to_sacp_attribute(Attribute const & attr, void *ptr)
@@ -250,7 +282,56 @@ bool from_sacp_attribute(Attribute &attr, void *ptr)
 }
 
 
+/**
+ * @brief 批量增加属性的ID
+ * 
+ * @param attrs 
+ * @param offset 
+ */
+void increase_attributes_id(std::vector<Attribute> & attrs, size_t offset)
+{
+    for (auto & v : attrs)
+    {
+        v.id_ += offset;
+    }
+}
 
+/**
+ * @brief 批量减少属性的ID
+ * 
+ * @param attrs 
+ * @param offset 
+ */
+void decrease_attributes_id(std::vector<Attribute> & attrs, size_t offset)
+{
+    for (auto & v : attrs)
+    {
+        v.id_ -= offset;
+    }
+}
+
+
+
+/**
+ * @brief 返回一个只读的属性常量，如果属性不存在，返回空属性，用于属性读
+ * 
+ * @param attrs 
+ * @param id 
+ * @return Attribute const& 
+ */
+Attribute const & get_attribute(AttributeArray const & attrs, uint16_t id)
+{
+    auto it = std::find_if(attrs.begin(), attrs.end(), [&](Attribute const & attr){
+        return (attr.id() == id);
+    });
+
+    if (it != attrs.end())
+    {
+        return *it;
+    }
+
+    return Attribute::ZeroAttribute;
+}
 
 
 } // end sacp
