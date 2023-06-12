@@ -20,12 +20,8 @@
 
 #include <common/main_option.h>
 #include <common/logger.h>
+#include <sacp_client/vofa_debuger.h>
 
-namespace naiad 
-{
-
-namespace chassis
-{
 
 /**
  * @brief 本地选项处理
@@ -40,6 +36,7 @@ public:
     static const std::string Baudrate;
     static const std::string LogLevel;
     static const std::string DebugTcpPort;
+    static const std::string VofaConfigs;
 
     /**
      * @brief Construct a new Local Option object
@@ -51,6 +48,7 @@ public:
     LocalOption(const std::string &version, int argc, const char *argv[]) : MainOption(get_usage(), version, argc, argv) { }
 
     ~LocalOption() = default;
+
 
     /**
      * @brief 返回参数是否有误
@@ -97,6 +95,23 @@ public:
             return false;
         }
         
+        // 如果VOFA的选项不为空，检查每一个选项
+
+        
+        if (test_option(VofaConfigs))
+        {
+            auto vofa_configs = get_string(VofaConfigs);
+
+            int port;
+            int period;
+            std::vector<uint32_t> datas;
+            if (!sacp::VofaDebuger::ParseConfig(vofa_configs, port, period, datas))
+            {
+                std::cout << "***Invalid Vofa config item:" << vofa_configs << std::endl;
+                return false;
+            }
+        }
+
         return true;
     } 
 
@@ -157,17 +172,19 @@ private:
         static const char usage[] = 
 R"(  
 Usage: 
-    nos_chassis [options]
+    sacp_client [options]   
 
 Options:
     -h, --help     Show this help.
     -v, --version  Show version info.
-    -s SERIAL      Set serial device. [default: /dev/ttyS1]
-    -r RATE        Set baudrate of serial port. [default: 115200]
+    -s SERIAL      Set serial device. [default: /dev/ttyUSB0]
+    -r RATE        Set baudrate of serial port. [default: 460800]
     -d PORT        Set debug tcp listen port. [default: 9600]
     -L LEVEL       Set the logging level.
                     Available options: trace, debug, info, warning, error
                     [default: info]
+    --vofa <CONFIG>   Add VOFA debuger services. 
+                      'CONFIG' format PORT:PERIOD:ATTR1,ATTR2,... 
 )";
 
         return usage;
@@ -179,9 +196,7 @@ const std::string LocalOption::SerialPort = "-s";
 const std::string LocalOption::Baudrate = "-r";
 const std::string LocalOption::LogLevel = "-L";
 const std::string LocalOption::DebugTcpPort = "-d";
+const std::string LocalOption::VofaConfigs = "--vofa";
 
-} // end chassis 
-
-} // nos 
 
 #endif // LOCAL_OPTION_H_
