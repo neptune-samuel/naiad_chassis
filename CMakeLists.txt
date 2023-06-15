@@ -4,7 +4,7 @@
 # Date: 20230512
 # 
 # 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.10)
 
 project(naiad_chassis VERSION 0.1)
 
@@ -78,7 +78,7 @@ if (WS_ROS)
 include_directories(    
     ${ROS_ROOT_DIR}/include)
 endif()
-    
+
 ## add local libs dir
 link_directories(${WS_INSTALL_PREFIX}/lib)
 ## add libs/sacp
