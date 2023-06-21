@@ -38,10 +38,10 @@ public:
     {
         // 创建一个服务
         service_set_brightness_ = this->create_service<SrvLedLightSetBrightness>(
-            this->type_ + "/set_position", [this](const std::shared_ptr<SrvLedLightSetBrightnessRequest> req, 
+            this->type_ + "/set_brightness", [this](const std::shared_ptr<SrvLedLightSetBrightnessRequest> req, 
                 std::shared_ptr<SrvLedLightSetBrightnessResponse> resp){
 
-            slog::info("set ledlight position, address={} position={}", req->address, req->brightness);
+            slog::info("set ledlight brightness, address={} brightness={}", req->address, req->brightness);
             
             auto result = robot::n1::set_ledlight_brightness(sacp_client_, req->address, req->brightness);
             if (result->status == sacp::SacpClient::OperationStatus::Ok){

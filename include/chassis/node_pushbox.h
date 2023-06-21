@@ -37,7 +37,7 @@ public:
     {
         // 创建一个服务
         service_control_ = this->create_service<SrvPushBoxControl>(
-            this->type_ + "/set_brightness", [this](const std::shared_ptr<SrvPushBoxControlRequest> req, 
+            this->type_ + "/push_action", [this](const std::shared_ptr<SrvPushBoxControlRequest> req, 
                 std::shared_ptr<SrvPushBoxControlResponse> resp){
             slog::info("pushbox control, address={} action={}", req->address, req->control);            
             auto result = robot::n1::set_pushbox_control(sacp_client_, req->address, req->control);
