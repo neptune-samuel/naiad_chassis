@@ -24,6 +24,7 @@
 #include "chassis/node_pumpbox.h"
 #include "chassis/node_fogbox.h"
 #include "chassis/node_ledlight.h"
+#include "chassis/node_motion.h"
 
 namespace naiad 
 {
@@ -54,6 +55,7 @@ private:
     std::shared_ptr<NodePushBox> node_pushbox_;
     std::shared_ptr<NodeLedLight> node_ledlight_;
     std::shared_ptr<NodeLifter> node_lifter_;
+    std::shared_ptr<NodeMotion> node_motion_;
 
 };
 

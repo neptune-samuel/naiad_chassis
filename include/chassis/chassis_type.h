@@ -22,6 +22,13 @@
 #include "naiad_interfaces/srv/main_controller_set_time.hpp"
 #include "naiad_interfaces/srv/main_controller_get_info.hpp"
 
+#include "naiad_interfaces/msg/depth_data.hpp"
+
+#include "naiad_interfaces/msg/motor_state.hpp"
+#include "naiad_interfaces/msg/motion_control.hpp"
+#include "naiad_interfaces/msg/motion_data.hpp"
+#include "naiad_interfaces/msg/motion_odometer.hpp"
+
 namespace naiad
 {
 namespace chassis
@@ -68,6 +75,45 @@ using SrvControllerSetTimeRequest = naiad_interfaces::srv::MainControllerSetTime
 using SrvControllerSetTimeResponse = naiad_interfaces::srv::MainControllerSetTime_Response;
 using SrvControllerGetInfoRequest = naiad_interfaces::srv::MainControllerGetInfo_Request;
 using SrvControllerGetInfoResponse = naiad_interfaces::srv::MainControllerGetInfo_Response;
+
+// 深度传感器
+using MsgDepthData = naiad_interfaces::msg::DepthData;
+
+// 运动控制
+using MsgMotorState = naiad_interfaces::msg::MotorState;
+using MsgMotionControl = naiad_interfaces::msg::MotionControl;
+using MsgMotionData = naiad_interfaces::msg::MotionData;
+using MsgMotionOdometer = naiad_interfaces::msg::MotionOdometer;
+
+// 16位版本转换为字串
+static inline std::string version16_string(uint16_t version)
+{
+    char buf[32] = {};
+    sprintf(buf, "V%d.%d", (version >> 8) & 0xff, (version) & 0xff);
+    return std::string(buf);
+}
+
+// 32位版本ID转换为字串
+static inline std::string version_string(uint32_t version)
+{
+    char buf[32] = {};
+    sprintf(buf, "V%d.%d.%d", (version >> 24) & 0xff, (version >> 16) & 0xff, (version) & 0xff);
+    return std::string(buf);
+}
+
+
+/// @brief 将UNIX时间转换为字串
+/// @param time 
+/// @return 
+static inline std::string time_string(uint32_t time) 
+{
+    char buf[100] = { 0 };    
+    std::time_t t = (std::time_t)time;
+    std::tm tm = *std::localtime(&t);
+    std::sprintf(buf, "%04d-%02d-%02d %02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+        tm.tm_hour, tm.tm_min, tm.tm_sec);
+    return std::string(buf);
+}
 
 
 }

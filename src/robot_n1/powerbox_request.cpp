@@ -55,8 +55,8 @@ bool parse_powerbox_device_brief(sacp::AttributeArray const &attrs,
 
     device.model = get_attribute(attrs, failed, pattern[0], offset).get_string();
     device.serial_number = get_attribute(attrs, failed, pattern[1], offset).get_string(); 
-    device.hardware_version = get_attribute(attrs, failed, pattern[2], offset).get_uint16(); 
-    device.software_version = get_attribute(attrs, failed, pattern[3], offset).get_uint16(); 
+    device.hardware_version = naiad::chassis::version16_string(get_attribute(attrs, failed, pattern[2], offset).get_uint16()); 
+    device.software_version = naiad::chassis::version16_string(get_attribute(attrs, failed, pattern[3], offset).get_uint16()); 
     //address = get_attribute(attrs, failed, pattern[4], offset).get_uint8();    
     device.name = get_attribute(attrs, failed, pattern[5], offset).get_string(); 
     

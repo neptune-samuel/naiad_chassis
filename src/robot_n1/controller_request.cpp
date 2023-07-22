@@ -48,9 +48,9 @@ bool parse_controller_info(sacp::AttributeArray const &attrs, naiad::chassis::Ms
     size_t failed = 0;
 
     info.hardware_id = get_attribute(attrs, failed, pattern[2], 0).get_uint32();
-    info.hardware_version = get_attribute(attrs, failed, pattern[3], 0).get_uint32(); 
-    info.software_version = get_attribute(attrs, failed, pattern[4], 0).get_uint32(); 
-    info.software_released_time = get_attribute(attrs, failed, pattern[5], 0).get_uint32(); 
+    info.hardware_version = naiad::chassis::version_string(get_attribute(attrs, failed, pattern[3], 0).get_uint32()); 
+    info.software_version = naiad::chassis::version_string(get_attribute(attrs, failed, pattern[4], 0).get_uint32()); 
+    info.software_released_time = naiad::chassis::time_string(get_attribute(attrs, failed, pattern[5], 0).get_uint32()); 
     info.model = get_attribute(attrs, failed, pattern[6], 0).get_string(); 
     info.serial_number = get_attribute(attrs, failed, pattern[7], 0).get_string(); 
 
@@ -76,6 +76,7 @@ bool parse_controller_status(sacp::AttributeArray const &attrs, naiad::chassis::
         ATTR_CPU_USAGED(0),
         ATTR_MEM_TOTAL(0),
         ATTR_MEM_FREE(0),
+        ATTR_BOARD_STATE(0),
         ATTR_BOARD_TEMPERATURE(0),
         ATTR_BOARD_HUMIDITY(0),
         ATTR_MCU_TEMPERATURE(0)
@@ -88,9 +89,10 @@ bool parse_controller_status(sacp::AttributeArray const &attrs, naiad::chassis::
     state.cpu_usaged = get_attribute(attrs, failed, pattern[2], 0).get_float(); 
     state.ram_size = get_attribute(attrs, failed, pattern[3], 0).get_uint32(); 
     state.ram_free = get_attribute(attrs, failed, pattern[4], 0).get_uint32(); 
-    state.board_temperature = get_attribute(attrs, failed, pattern[5], 0).get_float(); 
-    state.board_humidity = get_attribute(attrs, failed, pattern[6], 0).get_float();
-    state.mcu_temperature = get_attribute(attrs, failed, pattern[7], 0).get_float();
+    state.board_state = get_attribute(attrs, failed, pattern[5], 0).get_uint16(); 
+    state.board_temperature = get_attribute(attrs, failed, pattern[6], 0).get_float(); 
+    state.board_humidity = get_attribute(attrs, failed, pattern[7], 0).get_float();
+    state.mcu_temperature = get_attribute(attrs, failed, pattern[8], 0).get_float();
 
     return (failed == 0);
 }
