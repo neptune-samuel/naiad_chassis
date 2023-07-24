@@ -2,6 +2,7 @@
 #include "common/logger.h"
 
 #include "sacp/attribute.h"
+#include "device_index.h"
 
 namespace robot {
 namespace n1 {
@@ -79,14 +80,14 @@ uint16_t has_attribute(sacp::AttributeArray const & attrs, sacp::AttributeIdPatt
  * @return false 
  */
 bool parse_attributes_range(sacp::AttributeArray const &attrs, 
-    uint16_t first_id, uint16_t second_id, size_t & offset, uint8_t & index)
+    uint16_t first_id, uint16_t second_id, size_t & offset, DeviceIndex & index)
 {
 
     // 表示不需要查找，仅单实例
     if (second_id <= first_id)
     {
         offset = 0;
-        index = 0;
+        index = DeviceIndex::SingleInstance;
         return true;
     }
 
@@ -110,8 +111,8 @@ bool parse_attributes_range(sacp::AttributeArray const &attrs,
 
 
     offset = id - first_id;
-    // 这里有问题，address变成必须固定了
-    index = offset / (second_id - first_id);
+    // 将索引转换为索引类型
+    index = static_cast<DeviceIndex>(offset / (second_id - first_id));
 
     return true;
 }

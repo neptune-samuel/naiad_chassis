@@ -14,6 +14,7 @@
 #include "attribute_helper.h"
 #include "sacp_client/sacp_client.h"
 #include "chassis/chassis_type.h"
+#include "device_index.h"
 
 
 namespace robot{
@@ -31,7 +32,7 @@ namespace n1
  * @return false 
  */
 bool parse_lifter_device_brief(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgDeviceBreif &device)
+   DeviceIndex & index, naiad::chassis::MsgDeviceBreif &device)
 {
     const sacp::AttributeArray pattern = 
     {
@@ -44,29 +45,21 @@ bool parse_lifter_device_brief(sacp::AttributeArray const &attrs,
     };
 
     size_t offset = 0;
-    uint8_t index = 0;
+    size_t failed = 0;
 
     if (!parse_attributes_range(attrs, ATTR_LIFTER_A_MODEL_ID, ATTR_LIFTER_B_MODEL_ID, offset, index))
     {
         return false;
     }    
 
-    size_t failed = 0;
-
     device.model = get_attribute(attrs, failed, pattern[0], offset).get_string();
     device.serial_number = get_attribute(attrs, failed, pattern[1], offset).get_string(); 
     device.hardware_version = naiad::chassis::version16_string(get_attribute(attrs, failed, pattern[2], offset).get_uint16()); 
     device.software_version = naiad::chassis::version16_string(get_attribute(attrs, failed, pattern[3], offset).get_uint16()); 
-    //address = get_attribute(attrs, failed, pattern[4], offset).get_uint8();    
+    uint8_t address = get_attribute(attrs, failed, pattern[4], offset).get_uint8();
+    device.address_info = std::to_string(address);     
     device.name = get_attribute(attrs, failed, pattern[5], offset).get_string(); 
     
-    // if (address != (index + 1))
-    // {
-    //     slog::warning("receive report with unexpected device address, got:{}, expect:{}", address, (index + 1));        
-    // }
-
-    address = index + 1;
-
     return (failed == 0);
 }
 
@@ -80,7 +73,7 @@ bool parse_lifter_device_brief(sacp::AttributeArray const &attrs,
  * @return false 
  */
 bool parse_lifter_admin_status(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgAdminStatus &device)
+   DeviceIndex & index, naiad::chassis::MsgAdminStatus &device)
 {
 
     const sacp::AttributeArray pattern = 
@@ -91,20 +84,16 @@ bool parse_lifter_admin_status(sacp::AttributeArray const &attrs,
     };
 
     size_t offset = 0;
-    uint8_t index = 0;
+    size_t failed = 0;
 
     if (!parse_attributes_range(attrs, ATTR_LIFTER_A_LINK_STATUS_ID, ATTR_LIFTER_B_LINK_STATUS_ID, offset, index))
     {
         return false;
     }   
 
-    size_t failed = 0;
-
     device.link_status = get_attribute(attrs, failed, pattern[0], offset).get_uint8(); 
     device.connected_time = get_attribute(attrs, failed, pattern[1], offset).get_uint32(); 
     device.disconnected_time = get_attribute(attrs, failed, pattern[2], offset).get_uint32(); 
-
-    address = index + 1;
 
     return (failed == 0);
 }
@@ -119,7 +108,7 @@ bool parse_lifter_admin_status(sacp::AttributeArray const &attrs,
  * @return false 
  */
 bool parse_lifter_device_state(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgLifterState &device)
+   DeviceIndex & index, naiad::chassis::MsgLifterState &device)
 {
 
     const sacp::AttributeArray pattern = 
@@ -135,14 +124,12 @@ bool parse_lifter_device_state(sacp::AttributeArray const &attrs,
     };
 
     size_t offset = 0;
-    uint8_t index = 0;
+    size_t failed = 0;
 
     if (!parse_attributes_range(attrs, ATTR_LIFTER_A_POSITION_ID, ATTR_LIFTER_B_POSITION_ID, offset, index))
     {
         return false;
     }   
-
-    size_t failed = 0;
 
     device.position = get_attribute(attrs, failed, pattern[0], offset).get_uint8(); 
     device.raw_position = get_attribute(attrs, failed, pattern[1], offset).get_uint16(); 
@@ -152,8 +139,6 @@ bool parse_lifter_device_state(sacp::AttributeArray const &attrs,
     device.current = get_attribute(attrs, failed, pattern[5], offset).get_float(); 
     device.running = get_attribute(attrs, failed, pattern[6], offset).get_bool(); 
     device.alarm_status = get_attribute(attrs, failed, pattern[7], offset).get_uint16(); 
-
-    address = index + 1;
 
     return (failed == 0);
 }
@@ -166,7 +151,7 @@ bool parse_lifter_device_state(sacp::AttributeArray const &attrs,
 /// @param position 
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> set_lifter_position(
-    std::shared_ptr<sacp::SacpClient> client, uint8_t address, uint8_t position)
+    std::shared_ptr<sacp::SacpClient> client, DeviceIndex index, uint8_t position)
 {
 
     if (!client->is_running())
@@ -179,7 +164,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> set_lifter_position(
         return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::InvalidParameter);
     }
 
-    if ((address < 1) || (address > 4))
+    if (!valid_lifter_index(index))
     {
         return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::NoSuchObject);
     }
@@ -188,7 +173,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> set_lifter_position(
                 ATTR_LIFTER_A_SET_POSITION(position)
             };
     // 批量修改属性ID
-    sacp::increase_attributes_id(attrs, (address - 1) * (ATTR_LIFTER_B_ADDRESS_ID - ATTR_LIFTER_A_ADDRESS_ID));
+    sacp::increase_attributes_id(attrs, lifter_attribute_offset(index));
 
     // 写请求
     return client->write_attributes("ros", sacp::Frame::Priority::PriorityLowest, attrs); 
@@ -201,14 +186,14 @@ std::unique_ptr<sacp::SacpClient::OperationResult> set_lifter_position(
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> read_lifter_info(
     std::shared_ptr<sacp::SacpClient> client, 
-    uint8_t address, naiad::chassis::MsgDeviceInfo & info)
+    DeviceIndex index, naiad::chassis::MsgDeviceInfo & info)
 {
     if (!client->is_running())
     {
         return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::InternalError);    
     }
 
-    if ((address < 1) || (address > 4))
+    if (!valid_lifter_index(index))
     {
         return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::NoSuchObject);
     }
@@ -218,7 +203,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> read_lifter_info(
         ATTR_LIFTER_A_SN(""), 		         
         ATTR_LIFTER_A_HW_VERSION(0), 		 
         ATTR_LIFTER_A_SW_VERSION(0),		 
-        /*ATTR_LIFTER_A_ADDRESS(0), */ 		 
+        ATTR_LIFTER_A_ADDRESS(0), 		 
         ATTR_LIFTER_A_NAME(""), 		     
         ATTR_LIFTER_A_LINK_STATUS(0), 	
         ATTR_LIFTER_A_CONNECTED_TIME(0), 	
@@ -226,7 +211,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> read_lifter_info(
     };
 
     // 批量修改属性ID
-    sacp::increase_attributes_id(attrs, (address - 1) * (ATTR_LIFTER_B_ADDRESS_ID - ATTR_LIFTER_A_ADDRESS_ID));
+    sacp::increase_attributes_id(attrs, lifter_attribute_offset(index));
 
     // 读取指定属性
     auto result = client->read_attributes("ros", sacp::Frame::Priority::PriorityLowest, attrs); 
@@ -236,8 +221,8 @@ std::unique_ptr<sacp::SacpClient::OperationResult> read_lifter_info(
         return result;
     }
 
-    bool ret1 = parse_lifter_device_brief(result->attributes, address, info.device_brief);
-    bool ret2 = parse_lifter_admin_status(result->attributes, address, info.admin_status);
+    bool ret1 = parse_lifter_device_brief(result->attributes, index, info.device_brief);
+    bool ret2 = parse_lifter_admin_status(result->attributes, index, info.admin_status);
     
     if (ret1 && ret2)
     {

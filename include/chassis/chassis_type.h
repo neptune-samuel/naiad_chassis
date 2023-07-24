@@ -1,4 +1,7 @@
 
+#ifndef __CHASSIS_TYPE_H__
+#define __CHASSIS_TYPE_H__
+
 #include "common/logger.h"
 #include "rclcpp/rclcpp.hpp"
 
@@ -118,3 +121,5 @@ static inline std::string time_string(uint32_t time)
 
 }
 }
+
+#endif // __CHASSIS_TYPE_H__

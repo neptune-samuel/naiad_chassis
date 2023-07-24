@@ -41,9 +41,9 @@ public:
             this->type_ + "/set_brightness", [this](const std::shared_ptr<SrvLedLightSetBrightnessRequest> req, 
                 std::shared_ptr<SrvLedLightSetBrightnessResponse> resp){
 
-            slog::info("set ledlight brightness, address={} brightness={}", req->address, req->brightness);
+            slog::info("set ledlight brightness, index={} brightness={}", req->index, req->brightness);
             
-            auto result = robot::n1::set_ledlight_brightness(sacp_client_, req->address, req->brightness);
+            auto result = robot::n1::set_ledlight_brightness(sacp_client_, (robot::n1::DeviceIndex)req->index, req->brightness);
             if (result->status == sacp::SacpClient::OperationStatus::Ok){
                 resp->status = true;
                 resp->status_info = "success";
@@ -64,39 +64,39 @@ public:
         {
             case REPORT_ID(_REPORT_LEDLIGHT_BASE, _DEVICE_INFO):  
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::LedLightA;
                 MsgDeviceBreif brief;
-                bool result = robot::n1::parse_ledlight_device_brief(attributes, address, brief);
+                bool result = robot::n1::parse_ledlight_device_brief(attributes, index, brief);
                 if (result)
                 {
-                    slog::trace("parse ledlight({}) brief info success", address);
-                    set_device_brief(address, brief);
+                    slog::trace("parse ledlight({}) brief info success", (uint8_t)index);
+                    set_device_brief((uint8_t)index, brief);
                 }            
             }
             break;
 
             case REPORT_ID(_REPORT_LEDLIGHT_BASE, _ADMIN_STATUS):
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::LedLightA;
                 MsgAdminStatus status;
-                bool result = robot::n1::parse_ledlight_admin_status(attributes, address, status);
+                bool result = robot::n1::parse_ledlight_admin_status(attributes, index, status);
                 if (result)
                 {
-                    slog::trace("parse ledlight({}) admin status success", address);
-                    report_admin_status(address, status);
+                    slog::trace("parse ledlight({}) admin status success", (uint8_t)index);
+                    report_admin_status((uint8_t)index, status);
                 }
             }        
             break;
 
             case REPORT_ID(_REPORT_LEDLIGHT_BASE, _RUNNING_STATE):
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::LedLightA;
                 MsgLedLightState state;
-                bool result = robot::n1::parse_ledlight_device_state(attributes, address, state);
+                bool result = robot::n1::parse_ledlight_device_state(attributes, index, state);
                 if (result)
                 {
-                    slog::trace("parse ledlight({}) device state success", address);
-                    report_device_state(address, state);
+                    slog::trace("parse ledlight({}) device state success", (uint8_t)index);
+                    report_device_state((uint8_t)index, state);
                 }
             }        
             break;
@@ -104,12 +104,12 @@ public:
     } 
 
     /// @brief  主动获取设备信息
-    /// @param address 
+    /// @param index 
     /// @param info 
     /// @return 
-    bool get_device_info(uint8_t address, MsgDeviceInfo & info) override
+    bool get_device_info(uint8_t index, MsgDeviceInfo & info) override
     {        
-        auto result = robot::n1::read_ledlight_info(sacp_client_, address, info);
+        auto result = robot::n1::read_ledlight_info(sacp_client_, static_cast<robot::n1::DeviceIndex>(index), info);
         return (result->status == sacp::SacpClient::OperationStatus::Ok);        
     }    
 

@@ -4,6 +4,7 @@
 
 #include "common/logger.h"
 #include "sacp/attribute.h"
+#include "device_index.h"
 
 namespace robot {
 namespace n1 {
@@ -43,7 +44,7 @@ uint16_t has_attribute(sacp::AttributeArray const & attrs, sacp::AttributeIdPatt
  * @return false 
  */
 bool parse_attributes_range(sacp::AttributeArray const &attrs, 
-    uint16_t first_id, uint16_t second_id, size_t & offset, uint8_t & index);
+    uint16_t first_id, uint16_t second_id, size_t & offset, DeviceIndex & index);
 
 }
 

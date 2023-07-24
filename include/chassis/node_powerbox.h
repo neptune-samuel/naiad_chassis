@@ -48,39 +48,39 @@ public:
         {
             case REPORT_ID(_REPORT_POWERBOX_BASE, _DEVICE_INFO):  
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::PowerBox;
                 MsgDeviceBreif brief;
-                bool result = robot::n1::parse_powerbox_device_brief(attributes, address, brief);
+                bool result = robot::n1::parse_powerbox_device_brief(attributes, index, brief);
                 if (result)
                 {
-                    slog::trace("parse powerbox({}) brief info success", address);
-                    set_device_brief(address, brief);
+                    slog::trace("parse powerbox({}) brief info success", (uint8_t)index);
+                    set_device_brief((uint8_t)index, brief);
                 }            
             }
             break;
 
             case REPORT_ID(_REPORT_POWERBOX_BASE, _ADMIN_STATUS):
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::PowerBox;
                 MsgAdminStatus status;
-                bool result = robot::n1::parse_powerbox_admin_status(attributes, address, status);
+                bool result = robot::n1::parse_powerbox_admin_status(attributes, index, status);
                 if (result)
                 {
-                    slog::trace("parse powerbox({}) admin status success", address);
-                    report_admin_status(address, status);
+                    slog::trace("parse powerbox({}) admin status success", (uint8_t)index);
+                    report_admin_status((uint8_t)index, status);
                 }
             }        
             break;
 
             case REPORT_ID(_REPORT_POWERBOX_BASE, _RUNNING_STATE):
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::PowerBox;
                 MsgPowerBoxState state;
-                bool result = robot::n1::parse_powerbox_device_state(attributes, address, state);
+                bool result = robot::n1::parse_powerbox_device_state(attributes, index, state);
                 if (result)
                 {
-                    slog::trace("parse powerbox({}) device state success", address);
-                    report_device_state(address, state);
+                    slog::trace("parse powerbox({}) device state success", (uint8_t)index);
+                    report_device_state((uint8_t)index, state);
                 }
             }        
             break;
@@ -88,12 +88,12 @@ public:
     } 
 
     /// @brief  主动获取设备信息
-    /// @param address 
+    /// @param index 
     /// @param info 
     /// @return 
-    bool get_device_info(uint8_t address, MsgDeviceInfo & info) override
+    bool get_device_info(uint8_t index, MsgDeviceInfo & info) override
     {        
-        auto result = robot::n1::read_powerbox_info(sacp_client_, address, info);
+        auto result = robot::n1::read_powerbox_info(sacp_client_, static_cast<robot::n1::DeviceIndex>(index), info);
         return (result->status == sacp::SacpClient::OperationStatus::Ok);        
     }    
 

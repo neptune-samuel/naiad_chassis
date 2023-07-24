@@ -17,6 +17,7 @@
 #include "attribute_helper.h"
 #include "sacp_client/sacp_client.h"
 #include "chassis/chassis_type.h"
+#include "device_index.h"
 
 
 
@@ -28,37 +29,37 @@ namespace n1
  * @brief 解析电机的设备简介
  * 
  * @param attrs 收到的属性
- * @param address 返回的地址
+ * @param index 返回的索引
  * @param device 返回的信息
  * @return true 
  * @return false 
  */
 bool parse_motor_info(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgDeviceBreif &info);
+   DeviceIndex & index, naiad::chassis::MsgDeviceBreif &info);
 
 /**
  * @brief 解析电机的管理状态
  * 
  * @param attrs 收到的属性
- * @param address 返回的地址
+ * @param index 返回的索引
  * @param device 返回的信息
  * @return true 
  * @return false 
  */
 bool parse_motor_admin_status(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgAdminStatus &status);
+   DeviceIndex & index, naiad::chassis::MsgAdminStatus &status);
 
 /**
  * @brief 解析电机的设备状态信息
  * 
  * @param attrs 
- * @param address 
+ * @param index 
  * @param device 
  * @return true 
  * @return false 
  */
 bool parse_motor_state(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgMotorState &state);
+   DeviceIndex & index, naiad::chassis::MsgMotorState &state);
 
 /**
  * @brief 解析控制反馈数据1
