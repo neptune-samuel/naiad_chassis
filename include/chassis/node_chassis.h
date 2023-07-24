@@ -113,6 +113,8 @@ private:
     rclcpp::Service<SrvControllerGetInfo>::SharedPtr info_service_;
     /// 获取主控信息服务
     // rclcpp::Service<SrvControllerSetTime>::SharedPtr service_set_time_;
+    /// 深度传感器发布
+    rclcpp::Publisher<MsgDepthData>::SharedPtr depth_data_publisher_;    
 
     // 异步调用结果, 不需要使用，但必须全局有效保留，不然的话异步会变成同步执行
     // std::future<void> async_task_; 

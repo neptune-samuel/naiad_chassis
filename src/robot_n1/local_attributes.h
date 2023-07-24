@@ -41,14 +41,22 @@
 #define ATTR_PRODUCT_SN(_val) 		sacp::Attribute(16, _val) 		/* 16   ATTR_PRODUCT_SN                          octet  RD */
 #define ATTR_SYSTEM_CONTROL_ID 		20
 #define ATTR_SYSTEM_CONTROL(_val) 		sacp::Attribute(20, (uint8_t)_val) 		/* 20   ATTR_SYSTEM_CONTROL                      uint8_t RW */
-#define ATTR_BOARD_TEMPERATURE_ID 		120
-#define ATTR_BOARD_TEMPERATURE(_val) 		sacp::Attribute(120, (float)_val) 		/* 120  ATTR_BOARD_TEMPERATURE                   float  RD */
-#define ATTR_BOARD_HUMIDITY_ID 		121
-#define ATTR_BOARD_HUMIDITY(_val) 		sacp::Attribute(121, (float)_val) 		/* 121  ATTR_BOARD_HUMIDITY                      float  RD */
-#define ATTR_MCU_TEMPERATURE_ID 		122
-#define ATTR_MCU_TEMPERATURE(_val) 		sacp::Attribute(122, (float)_val) 		/* 122  ATTR_MCU_TEMPERATURE                     float  RD */
+#define ATTR_BOARD_STATE_ID 		120
+#define ATTR_BOARD_STATE(_val) 		sacp::Attribute(120, (uint16_t)_val) 		/* 120  ATTR_BOARD_STATE                         uint16_t RD */
+#define ATTR_BOARD_TEMPERATURE_ID 		121
+#define ATTR_BOARD_TEMPERATURE(_val) 		sacp::Attribute(121, (float)_val) 		/* 121  ATTR_BOARD_TEMPERATURE                   float  RD */
+#define ATTR_BOARD_HUMIDITY_ID 		122
+#define ATTR_BOARD_HUMIDITY(_val) 		sacp::Attribute(122, (float)_val) 		/* 122  ATTR_BOARD_HUMIDITY                      float  RD */
+#define ATTR_MCU_TEMPERATURE_ID 		123
+#define ATTR_MCU_TEMPERATURE(_val) 		sacp::Attribute(123, (float)_val) 		/* 123  ATTR_MCU_TEMPERATURE                     float  RD */
+#define ATTR_DEPTH_SENSOR_STATE_ID 		124
+#define ATTR_DEPTH_SENSOR_STATE(_val) 		sacp::Attribute(124, (uint8_t)_val) 		/* 124  ATTR_DEPTH_SENSOR_STATE                  uint8_t RD */
+#define ATTR_DEPTH_SENSOR_PRESSURE_ID 		125
+#define ATTR_DEPTH_SENSOR_PRESSURE(_val) 		sacp::Attribute(125, (float)_val) 		/* 125  ATTR_DEPTH_SENSOR_PRESSURE               float  RD */
+#define ATTR_DEPTH_SENSOR_TEMPERATURE_ID 		126
+#define ATTR_DEPTH_SENSOR_TEMPERATURE(_val) 		sacp::Attribute(126, (float)_val) 		/* 126  ATTR_DEPTH_SENSOR_TEMPERATURE            float  RD */
 
-/* Total: 17 */
+/* Total: 21 */
 
 
 /* 属性组 - fogbox */
@@ -555,6 +563,280 @@
 /* Total: 72 */
 
 
-// 总共 251 Attributes 
+/* 属性组 - motor */
+
+#define ATTR_MOTOR_RIGHT_MODEL_ID 		800
+#define ATTR_MOTOR_RIGHT_MODEL(_val) 		sacp::Attribute(800, _val) 		/* 800  ATTR_MOTOR_RIGHT_MODEL                   octet  RD */
+#define ATTR_MOTOR_RIGHT_SN_ID 		801
+#define ATTR_MOTOR_RIGHT_SN(_val) 		sacp::Attribute(801, _val) 		/* 801  ATTR_MOTOR_RIGHT_SN                      octet  RD */
+#define ATTR_MOTOR_RIGHT_HW_VERSION_ID 		802
+#define ATTR_MOTOR_RIGHT_HW_VERSION(_val) 		sacp::Attribute(802, _val) 		/* 802  ATTR_MOTOR_RIGHT_HW_VERSION              octet  RD */
+#define ATTR_MOTOR_RIGHT_SW_VERSION_ID 		803
+#define ATTR_MOTOR_RIGHT_SW_VERSION(_val) 		sacp::Attribute(803, _val) 		/* 803  ATTR_MOTOR_RIGHT_SW_VERSION              octet  RD */
+#define ATTR_MOTOR_RIGHT_ADDRESS_ID 		804
+#define ATTR_MOTOR_RIGHT_ADDRESS(_val) 		sacp::Attribute(804, (uint8_t)_val) 		/* 804  ATTR_MOTOR_RIGHT_ADDRESS                 uint8_t RD */
+#define ATTR_MOTOR_RIGHT_NAME_ID 		805
+#define ATTR_MOTOR_RIGHT_NAME(_val) 		sacp::Attribute(805, _val) 		/* 805  ATTR_MOTOR_RIGHT_NAME                    octet  RD */
+#define ATTR_MOTOR_RIGHT_LINK_STATUS_ID 		806
+#define ATTR_MOTOR_RIGHT_LINK_STATUS(_val) 		sacp::Attribute(806, (uint8_t)_val) 		/* 806  ATTR_MOTOR_RIGHT_LINK_STATUS             uint8_t RD */
+#define ATTR_MOTOR_RIGHT_NODE_STATE_ID 		807
+#define ATTR_MOTOR_RIGHT_NODE_STATE(_val) 		sacp::Attribute(807, (uint8_t)_val) 		/* 807  ATTR_MOTOR_RIGHT_NODE_STATE              uint8_t RD */
+#define ATTR_MOTOR_RIGHT_CONNECTED_TIME_ID 		808
+#define ATTR_MOTOR_RIGHT_CONNECTED_TIME(_val) 		sacp::Attribute(808, (uint32_t)_val) 		/* 808  ATTR_MOTOR_RIGHT_CONNECTED_TIME          uint32_t RD */
+#define ATTR_MOTOR_RIGHT_DISCONNECTED_TIME_ID 		809
+#define ATTR_MOTOR_RIGHT_DISCONNECTED_TIME(_val) 		sacp::Attribute(809, (uint32_t)_val) 		/* 809  ATTR_MOTOR_RIGHT_DISCONNECTED_TIME       uint32_t RD */
+#define ATTR_MOTOR_RIGHT_TEMPERATURE_ID 		810
+#define ATTR_MOTOR_RIGHT_TEMPERATURE(_val) 		sacp::Attribute(810, (float)_val) 		/* 810  ATTR_MOTOR_RIGHT_TEMPERATURE             float  RD */
+#define ATTR_MOTOR_RIGHT_VOLTAGE_ID 		811
+#define ATTR_MOTOR_RIGHT_VOLTAGE(_val) 		sacp::Attribute(811, (float)_val) 		/* 811  ATTR_MOTOR_RIGHT_VOLTAGE                 float  RD */
+#define ATTR_MOTOR_RIGHT_CURRENT_ID 		812
+#define ATTR_MOTOR_RIGHT_CURRENT(_val) 		sacp::Attribute(812, (float)_val) 		/* 812  ATTR_MOTOR_RIGHT_CURRENT                 float  RD */
+#define ATTR_MOTOR_RIGHT_RAW_SPEED_ID 		813
+#define ATTR_MOTOR_RIGHT_RAW_SPEED(_val) 		sacp::Attribute(813, (float)_val) 		/* 813  ATTR_MOTOR_RIGHT_RAW_SPEED               float  RD */
+#define ATTR_MOTOR_RIGHT_RAW_POSITION_ID 		814
+#define ATTR_MOTOR_RIGHT_RAW_POSITION(_val) 		sacp::Attribute(814, (int32_t)_val) 		/* 814  ATTR_MOTOR_RIGHT_RAW_POSITION            int32_t RD */
+#define ATTR_MOTOR_RIGHT_RAW_TARGET_SPEED_ID 		815
+#define ATTR_MOTOR_RIGHT_RAW_TARGET_SPEED(_val) 		sacp::Attribute(815, (float)_val) 		/* 815  ATTR_MOTOR_RIGHT_RAW_TARGET_SPEED        float  RD */
+#define ATTR_MOTOR_RIGHT_RAW_TARGET_POSITION_ID 		816
+#define ATTR_MOTOR_RIGHT_RAW_TARGET_POSITION(_val) 		sacp::Attribute(816, (int32_t)_val) 		/* 816  ATTR_MOTOR_RIGHT_RAW_TARGET_POSITION     int32_t RD */
+#define ATTR_MOTOR_RIGHT_EXTRA_ENCODER_POSITION_ID 		817
+#define ATTR_MOTOR_RIGHT_EXTRA_ENCODER_POSITION(_val) 		sacp::Attribute(817, (int32_t)_val) 		/* 817  ATTR_MOTOR_RIGHT_EXTRA_ENCODER_POSITION  int32_t RD */
+#define ATTR_MOTOR_RIGHT_EXTRA_ENCODER_STATE_ID 		818
+#define ATTR_MOTOR_RIGHT_EXTRA_ENCODER_STATE(_val) 		sacp::Attribute(818, (uint8_t)_val) 		/* 818  ATTR_MOTOR_RIGHT_EXTRA_ENCODER_STATE     uint8_t RD */
+#define ATTR_MOTOR_RIGHT_STATUS_CODE_ID 		819
+#define ATTR_MOTOR_RIGHT_STATUS_CODE(_val) 		sacp::Attribute(819, (uint16_t)_val) 		/* 819  ATTR_MOTOR_RIGHT_STATUS_CODE             uint16_t RD */
+#define ATTR_MOTOR_RIGHT_EMERGENCY_ERROR_CODE_ID 		820
+#define ATTR_MOTOR_RIGHT_EMERGENCY_ERROR_CODE(_val) 		sacp::Attribute(820, (uint16_t)_val) 		/* 820  ATTR_MOTOR_RIGHT_EMERGENCY_ERROR_CODE    uint16_t RD */
+#define ATTR_MOTOR_RIGHT_EMERGENCY_STATUS_CODE_ID 		821
+#define ATTR_MOTOR_RIGHT_EMERGENCY_STATUS_CODE(_val) 		sacp::Attribute(821, (uint8_t)_val) 		/* 821  ATTR_MOTOR_RIGHT_EMERGENCY_STATUS_CODE   uint8_t RD */
+#define ATTR_MOTOR_RIGHT_ERROR_STATUS_ID 		822
+#define ATTR_MOTOR_RIGHT_ERROR_STATUS(_val) 		sacp::Attribute(822, (uint32_t)_val) 		/* 822  ATTR_MOTOR_RIGHT_ERROR_STATUS            uint32_t RD */
+#define ATTR_MOTOR_RIGHT_DEBUG_TARGET_ID 		823
+#define ATTR_MOTOR_RIGHT_DEBUG_TARGET(_val) 		sacp::Attribute(823, (float)_val) 		/* 823  ATTR_MOTOR_RIGHT_DEBUG_TARGET            float  RW */
+#define ATTR_MOTOR_RIGHT_EXTRA_COMMAND_ID 		824
+#define ATTR_MOTOR_RIGHT_EXTRA_COMMAND(_val) 		sacp::Attribute(824, (uint32_t)_val) 		/* 824  ATTR_MOTOR_RIGHT_EXTRA_COMMAND           uint32_t RW */
+#define ATTR_MOTOR_LEFT_MODEL_ID 		850
+#define ATTR_MOTOR_LEFT_MODEL(_val) 		sacp::Attribute(850, _val) 		/* 850  ATTR_MOTOR_LEFT_MODEL                    octet  RD */
+#define ATTR_MOTOR_LEFT_SN_ID 		851
+#define ATTR_MOTOR_LEFT_SN(_val) 		sacp::Attribute(851, _val) 		/* 851  ATTR_MOTOR_LEFT_SN                       octet  RD */
+#define ATTR_MOTOR_LEFT_HW_VERSION_ID 		852
+#define ATTR_MOTOR_LEFT_HW_VERSION(_val) 		sacp::Attribute(852, _val) 		/* 852  ATTR_MOTOR_LEFT_HW_VERSION               octet  RD */
+#define ATTR_MOTOR_LEFT_SW_VERSION_ID 		853
+#define ATTR_MOTOR_LEFT_SW_VERSION(_val) 		sacp::Attribute(853, _val) 		/* 853  ATTR_MOTOR_LEFT_SW_VERSION               octet  RD */
+#define ATTR_MOTOR_LEFT_ADDRESS_ID 		854
+#define ATTR_MOTOR_LEFT_ADDRESS(_val) 		sacp::Attribute(854, (uint8_t)_val) 		/* 854  ATTR_MOTOR_LEFT_ADDRESS                  uint8_t RD */
+#define ATTR_MOTOR_LEFT_NAME_ID 		855
+#define ATTR_MOTOR_LEFT_NAME(_val) 		sacp::Attribute(855, _val) 		/* 855  ATTR_MOTOR_LEFT_NAME                     octet  RD */
+#define ATTR_MOTOR_LEFT_LINK_STATUS_ID 		856
+#define ATTR_MOTOR_LEFT_LINK_STATUS(_val) 		sacp::Attribute(856, (uint8_t)_val) 		/* 856  ATTR_MOTOR_LEFT_LINK_STATUS              uint8_t RD */
+#define ATTR_MOTOR_LEFT_NODE_STATE_ID 		857
+#define ATTR_MOTOR_LEFT_NODE_STATE(_val) 		sacp::Attribute(857, (uint8_t)_val) 		/* 857  ATTR_MOTOR_LEFT_NODE_STATE               uint8_t RD */
+#define ATTR_MOTOR_LEFT_CONNECTED_TIME_ID 		858
+#define ATTR_MOTOR_LEFT_CONNECTED_TIME(_val) 		sacp::Attribute(858, (uint32_t)_val) 		/* 858  ATTR_MOTOR_LEFT_CONNECTED_TIME           uint32_t RD */
+#define ATTR_MOTOR_LEFT_DISCONNECTED_TIME_ID 		859
+#define ATTR_MOTOR_LEFT_DISCONNECTED_TIME(_val) 		sacp::Attribute(859, (uint32_t)_val) 		/* 859  ATTR_MOTOR_LEFT_DISCONNECTED_TIME        uint32_t RD */
+#define ATTR_MOTOR_LEFT_TEMPERATURE_ID 		860
+#define ATTR_MOTOR_LEFT_TEMPERATURE(_val) 		sacp::Attribute(860, (float)_val) 		/* 860  ATTR_MOTOR_LEFT_TEMPERATURE              float  RD */
+#define ATTR_MOTOR_LEFT_VOLTAGE_ID 		861
+#define ATTR_MOTOR_LEFT_VOLTAGE(_val) 		sacp::Attribute(861, (float)_val) 		/* 861  ATTR_MOTOR_LEFT_VOLTAGE                  float  RD */
+#define ATTR_MOTOR_LEFT_CURRENT_ID 		862
+#define ATTR_MOTOR_LEFT_CURRENT(_val) 		sacp::Attribute(862, (float)_val) 		/* 862  ATTR_MOTOR_LEFT_CURRENT                  float  RD */
+#define ATTR_MOTOR_LEFT_RAW_SPEED_ID 		863
+#define ATTR_MOTOR_LEFT_RAW_SPEED(_val) 		sacp::Attribute(863, (float)_val) 		/* 863  ATTR_MOTOR_LEFT_RAW_SPEED                float  RD */
+#define ATTR_MOTOR_LEFT_RAW_POSITION_ID 		864
+#define ATTR_MOTOR_LEFT_RAW_POSITION(_val) 		sacp::Attribute(864, (int32_t)_val) 		/* 864  ATTR_MOTOR_LEFT_RAW_POSITION             int32_t RD */
+#define ATTR_MOTOR_LEFT_RAW_TARGET_SPEED_ID 		865
+#define ATTR_MOTOR_LEFT_RAW_TARGET_SPEED(_val) 		sacp::Attribute(865, (float)_val) 		/* 865  ATTR_MOTOR_LEFT_RAW_TARGET_SPEED         float  RD */
+#define ATTR_MOTOR_LEFT_RAW_TARGET_POSITION_ID 		866
+#define ATTR_MOTOR_LEFT_RAW_TARGET_POSITION(_val) 		sacp::Attribute(866, (int32_t)_val) 		/* 866  ATTR_MOTOR_LEFT_RAW_TARGET_POSITION      int32_t RD */
+#define ATTR_MOTOR_LEFT_EXTRA_ENCODER_POSITION_ID 		867
+#define ATTR_MOTOR_LEFT_EXTRA_ENCODER_POSITION(_val) 		sacp::Attribute(867, (int32_t)_val) 		/* 867  ATTR_MOTOR_LEFT_EXTRA_ENCODER_POSITION   int32_t RD */
+#define ATTR_MOTOR_LEFT_EXTRA_ENCODER_STATE_ID 		868
+#define ATTR_MOTOR_LEFT_EXTRA_ENCODER_STATE(_val) 		sacp::Attribute(868, (uint8_t)_val) 		/* 868  ATTR_MOTOR_LEFT_EXTRA_ENCODER_STATE      uint8_t RD */
+#define ATTR_MOTOR_LEFT_STATUS_CODE_ID 		869
+#define ATTR_MOTOR_LEFT_STATUS_CODE(_val) 		sacp::Attribute(869, (uint16_t)_val) 		/* 869  ATTR_MOTOR_LEFT_STATUS_CODE              uint16_t RD */
+#define ATTR_MOTOR_LEFT_EMERGENCY_ERROR_CODE_ID 		870
+#define ATTR_MOTOR_LEFT_EMERGENCY_ERROR_CODE(_val) 		sacp::Attribute(870, (uint16_t)_val) 		/* 870  ATTR_MOTOR_LEFT_EMERGENCY_ERROR_CODE     uint16_t RD */
+#define ATTR_MOTOR_LEFT_EMERGENCY_STATUS_CODE_ID 		871
+#define ATTR_MOTOR_LEFT_EMERGENCY_STATUS_CODE(_val) 		sacp::Attribute(871, (uint8_t)_val) 		/* 871  ATTR_MOTOR_LEFT_EMERGENCY_STATUS_CODE    uint8_t RD */
+#define ATTR_MOTOR_LEFT_ERROR_STATUS_ID 		872
+#define ATTR_MOTOR_LEFT_ERROR_STATUS(_val) 		sacp::Attribute(872, (uint32_t)_val) 		/* 872  ATTR_MOTOR_LEFT_ERROR_STATUS             uint32_t RD */
+#define ATTR_MOTOR_LEFT_DEBUG_TARGET_ID 		873
+#define ATTR_MOTOR_LEFT_DEBUG_TARGET(_val) 		sacp::Attribute(873, (float)_val) 		/* 873  ATTR_MOTOR_LEFT_DEBUG_TARGET             float  RW */
+#define ATTR_MOTOR_LEFT_EXTRA_COMMAND_ID 		874
+#define ATTR_MOTOR_LEFT_EXTRA_COMMAND(_val) 		sacp::Attribute(874, (uint32_t)_val) 		/* 874  ATTR_MOTOR_LEFT_EXTRA_COMMAND            uint32_t RW */
+#define ATTR_MOTOR_FRONT_MODEL_ID 		900
+#define ATTR_MOTOR_FRONT_MODEL(_val) 		sacp::Attribute(900, _val) 		/* 900  ATTR_MOTOR_FRONT_MODEL                   octet  RD */
+#define ATTR_MOTOR_FRONT_SN_ID 		901
+#define ATTR_MOTOR_FRONT_SN(_val) 		sacp::Attribute(901, _val) 		/* 901  ATTR_MOTOR_FRONT_SN                      octet  RD */
+#define ATTR_MOTOR_FRONT_HW_VERSION_ID 		902
+#define ATTR_MOTOR_FRONT_HW_VERSION(_val) 		sacp::Attribute(902, _val) 		/* 902  ATTR_MOTOR_FRONT_HW_VERSION              octet  RD */
+#define ATTR_MOTOR_FRONT_SW_VERSION_ID 		903
+#define ATTR_MOTOR_FRONT_SW_VERSION(_val) 		sacp::Attribute(903, _val) 		/* 903  ATTR_MOTOR_FRONT_SW_VERSION              octet  RD */
+#define ATTR_MOTOR_FRONT_ADDRESS_ID 		904
+#define ATTR_MOTOR_FRONT_ADDRESS(_val) 		sacp::Attribute(904, (uint8_t)_val) 		/* 904  ATTR_MOTOR_FRONT_ADDRESS                 uint8_t RD */
+#define ATTR_MOTOR_FRONT_NAME_ID 		905
+#define ATTR_MOTOR_FRONT_NAME(_val) 		sacp::Attribute(905, _val) 		/* 905  ATTR_MOTOR_FRONT_NAME                    octet  RD */
+#define ATTR_MOTOR_FRONT_LINK_STATUS_ID 		906
+#define ATTR_MOTOR_FRONT_LINK_STATUS(_val) 		sacp::Attribute(906, (uint8_t)_val) 		/* 906  ATTR_MOTOR_FRONT_LINK_STATUS             uint8_t RD */
+#define ATTR_MOTOR_FRONT_NODE_STATE_ID 		907
+#define ATTR_MOTOR_FRONT_NODE_STATE(_val) 		sacp::Attribute(907, (uint8_t)_val) 		/* 907  ATTR_MOTOR_FRONT_NODE_STATE              uint8_t RD */
+#define ATTR_MOTOR_FRONT_CONNECTED_TIME_ID 		908
+#define ATTR_MOTOR_FRONT_CONNECTED_TIME(_val) 		sacp::Attribute(908, (uint32_t)_val) 		/* 908  ATTR_MOTOR_FRONT_CONNECTED_TIME          uint32_t RD */
+#define ATTR_MOTOR_FRONT_DISCONNECTED_TIME_ID 		909
+#define ATTR_MOTOR_FRONT_DISCONNECTED_TIME(_val) 		sacp::Attribute(909, (uint32_t)_val) 		/* 909  ATTR_MOTOR_FRONT_DISCONNECTED_TIME       uint32_t RD */
+#define ATTR_MOTOR_FRONT_TEMPERATURE_ID 		910
+#define ATTR_MOTOR_FRONT_TEMPERATURE(_val) 		sacp::Attribute(910, (float)_val) 		/* 910  ATTR_MOTOR_FRONT_TEMPERATURE             float  RD */
+#define ATTR_MOTOR_FRONT_VOLTAGE_ID 		911
+#define ATTR_MOTOR_FRONT_VOLTAGE(_val) 		sacp::Attribute(911, (float)_val) 		/* 911  ATTR_MOTOR_FRONT_VOLTAGE                 float  RD */
+#define ATTR_MOTOR_FRONT_CURRENT_ID 		912
+#define ATTR_MOTOR_FRONT_CURRENT(_val) 		sacp::Attribute(912, (float)_val) 		/* 912  ATTR_MOTOR_FRONT_CURRENT                 float  RD */
+#define ATTR_MOTOR_FRONT_RAW_SPEED_ID 		913
+#define ATTR_MOTOR_FRONT_RAW_SPEED(_val) 		sacp::Attribute(913, (float)_val) 		/* 913  ATTR_MOTOR_FRONT_RAW_SPEED               float  RD */
+#define ATTR_MOTOR_FRONT_RAW_POSITION_ID 		914
+#define ATTR_MOTOR_FRONT_RAW_POSITION(_val) 		sacp::Attribute(914, (int32_t)_val) 		/* 914  ATTR_MOTOR_FRONT_RAW_POSITION            int32_t RD */
+#define ATTR_MOTOR_FRONT_RAW_TARGET_SPEED_ID 		915
+#define ATTR_MOTOR_FRONT_RAW_TARGET_SPEED(_val) 		sacp::Attribute(915, (float)_val) 		/* 915  ATTR_MOTOR_FRONT_RAW_TARGET_SPEED        float  RD */
+#define ATTR_MOTOR_FRONT_RAW_TARGET_POSITION_ID 		916
+#define ATTR_MOTOR_FRONT_RAW_TARGET_POSITION(_val) 		sacp::Attribute(916, (int32_t)_val) 		/* 916  ATTR_MOTOR_FRONT_RAW_TARGET_POSITION     int32_t RD */
+#define ATTR_MOTOR_FRONT_EXTRA_ENCODER_POSITION_ID 		917
+#define ATTR_MOTOR_FRONT_EXTRA_ENCODER_POSITION(_val) 		sacp::Attribute(917, (int32_t)_val) 		/* 917  ATTR_MOTOR_FRONT_EXTRA_ENCODER_POSITION  int32_t RD */
+#define ATTR_MOTOR_FRONT_EXTRA_ENCODER_STATE_ID 		918
+#define ATTR_MOTOR_FRONT_EXTRA_ENCODER_STATE(_val) 		sacp::Attribute(918, (uint8_t)_val) 		/* 918  ATTR_MOTOR_FRONT_EXTRA_ENCODER_STATE     uint8_t RD */
+#define ATTR_MOTOR_FRONT_STATUS_CODE_ID 		919
+#define ATTR_MOTOR_FRONT_STATUS_CODE(_val) 		sacp::Attribute(919, (uint16_t)_val) 		/* 919  ATTR_MOTOR_FRONT_STATUS_CODE             uint16_t RD */
+#define ATTR_MOTOR_FRONT_EMERGENCY_ERROR_CODE_ID 		920
+#define ATTR_MOTOR_FRONT_EMERGENCY_ERROR_CODE(_val) 		sacp::Attribute(920, (uint16_t)_val) 		/* 920  ATTR_MOTOR_FRONT_EMERGENCY_ERROR_CODE    uint16_t RD */
+#define ATTR_MOTOR_FRONT_EMERGENCY_STATUS_CODE_ID 		921
+#define ATTR_MOTOR_FRONT_EMERGENCY_STATUS_CODE(_val) 		sacp::Attribute(921, (uint8_t)_val) 		/* 921  ATTR_MOTOR_FRONT_EMERGENCY_STATUS_CODE   uint8_t RD */
+#define ATTR_MOTOR_FRONT_ERROR_STATUS_ID 		922
+#define ATTR_MOTOR_FRONT_ERROR_STATUS(_val) 		sacp::Attribute(922, (uint32_t)_val) 		/* 922  ATTR_MOTOR_FRONT_ERROR_STATUS            uint32_t RD */
+#define ATTR_MOTOR_FRONT_DEBUG_TARGET_ID 		923
+#define ATTR_MOTOR_FRONT_DEBUG_TARGET(_val) 		sacp::Attribute(923, (float)_val) 		/* 923  ATTR_MOTOR_FRONT_DEBUG_TARGET            float  RW */
+#define ATTR_MOTOR_FRONT_EXTRA_COMMAND_ID 		924
+#define ATTR_MOTOR_FRONT_EXTRA_COMMAND(_val) 		sacp::Attribute(924, (uint32_t)_val) 		/* 924  ATTR_MOTOR_FRONT_EXTRA_COMMAND           uint32_t RW */
+#define ATTR_MOTOR_STEERING_MODEL_ID 		950
+#define ATTR_MOTOR_STEERING_MODEL(_val) 		sacp::Attribute(950, _val) 		/* 950  ATTR_MOTOR_STEERING_MODEL                octet  RD */
+#define ATTR_MOTOR_STEERING_SN_ID 		951
+#define ATTR_MOTOR_STEERING_SN(_val) 		sacp::Attribute(951, _val) 		/* 951  ATTR_MOTOR_STEERING_SN                   octet  RD */
+#define ATTR_MOTOR_STEERING_HW_VERSION_ID 		952
+#define ATTR_MOTOR_STEERING_HW_VERSION(_val) 		sacp::Attribute(952, _val) 		/* 952  ATTR_MOTOR_STEERING_HW_VERSION           octet  RD */
+#define ATTR_MOTOR_STEERING_SW_VERSION_ID 		953
+#define ATTR_MOTOR_STEERING_SW_VERSION(_val) 		sacp::Attribute(953, _val) 		/* 953  ATTR_MOTOR_STEERING_SW_VERSION           octet  RD */
+#define ATTR_MOTOR_STEERING_ADDRESS_ID 		954
+#define ATTR_MOTOR_STEERING_ADDRESS(_val) 		sacp::Attribute(954, (uint8_t)_val) 		/* 954  ATTR_MOTOR_STEERING_ADDRESS              uint8_t RD */
+#define ATTR_MOTOR_STEERING_NAME_ID 		955
+#define ATTR_MOTOR_STEERING_NAME(_val) 		sacp::Attribute(955, _val) 		/* 955  ATTR_MOTOR_STEERING_NAME                 octet  RD */
+#define ATTR_MOTOR_STEERING_LINK_STATUS_ID 		956
+#define ATTR_MOTOR_STEERING_LINK_STATUS(_val) 		sacp::Attribute(956, (uint8_t)_val) 		/* 956  ATTR_MOTOR_STEERING_LINK_STATUS          uint8_t RD */
+#define ATTR_MOTOR_STEERING_NODE_STATE_ID 		957
+#define ATTR_MOTOR_STEERING_NODE_STATE(_val) 		sacp::Attribute(957, (uint8_t)_val) 		/* 957  ATTR_MOTOR_STEERING_NODE_STATE           uint8_t RD */
+#define ATTR_MOTOR_STEERING_CONNECTED_TIME_ID 		958
+#define ATTR_MOTOR_STEERING_CONNECTED_TIME(_val) 		sacp::Attribute(958, (uint32_t)_val) 		/* 958  ATTR_MOTOR_STEERING_CONNECTED_TIME       uint32_t RD */
+#define ATTR_MOTOR_STEERING_DISCONNECTED_TIME_ID 		959
+#define ATTR_MOTOR_STEERING_DISCONNECTED_TIME(_val) 		sacp::Attribute(959, (uint32_t)_val) 		/* 959  ATTR_MOTOR_STEERING_DISCONNECTED_TIME    uint32_t RD */
+#define ATTR_MOTOR_STEERING_TEMPERATURE_ID 		960
+#define ATTR_MOTOR_STEERING_TEMPERATURE(_val) 		sacp::Attribute(960, (float)_val) 		/* 960  ATTR_MOTOR_STEERING_TEMPERATURE          float  RD */
+#define ATTR_MOTOR_STEERING_VOLTAGE_ID 		961
+#define ATTR_MOTOR_STEERING_VOLTAGE(_val) 		sacp::Attribute(961, (float)_val) 		/* 961  ATTR_MOTOR_STEERING_VOLTAGE              float  RD */
+#define ATTR_MOTOR_STEERING_CURRENT_ID 		962
+#define ATTR_MOTOR_STEERING_CURRENT(_val) 		sacp::Attribute(962, (float)_val) 		/* 962  ATTR_MOTOR_STEERING_CURRENT              float  RD */
+#define ATTR_MOTOR_STEERING_RAW_SPEED_ID 		963
+#define ATTR_MOTOR_STEERING_RAW_SPEED(_val) 		sacp::Attribute(963, (float)_val) 		/* 963  ATTR_MOTOR_STEERING_RAW_SPEED            float  RD */
+#define ATTR_MOTOR_STEERING_RAW_POSITION_ID 		964
+#define ATTR_MOTOR_STEERING_RAW_POSITION(_val) 		sacp::Attribute(964, (int32_t)_val) 		/* 964  ATTR_MOTOR_STEERING_RAW_POSITION         int32_t RD */
+#define ATTR_MOTOR_STEERING_RAW_TARGET_SPEED_ID 		965
+#define ATTR_MOTOR_STEERING_RAW_TARGET_SPEED(_val) 		sacp::Attribute(965, (float)_val) 		/* 965  ATTR_MOTOR_STEERING_RAW_TARGET_SPEED     float  RD */
+#define ATTR_MOTOR_STEERING_RAW_TARGET_POSITION_ID 		966
+#define ATTR_MOTOR_STEERING_RAW_TARGET_POSITION(_val) 		sacp::Attribute(966, (int32_t)_val) 		/* 966  ATTR_MOTOR_STEERING_RAW_TARGET_POSITION  int32_t RD */
+#define ATTR_MOTOR_STEERING_EXTRA_ENCODER_POSITION_ID 		967
+#define ATTR_MOTOR_STEERING_EXTRA_ENCODER_POSITION(_val) 		sacp::Attribute(967, (int32_t)_val) 		/* 967  ATTR_MOTOR_STEERING_EXTRA_ENCODER_POSITION int32_t RD */
+#define ATTR_MOTOR_STEERING_EXTRA_ENCODER_STATE_ID 		968
+#define ATTR_MOTOR_STEERING_EXTRA_ENCODER_STATE(_val) 		sacp::Attribute(968, (uint8_t)_val) 		/* 968  ATTR_MOTOR_STEERING_EXTRA_ENCODER_STATE  uint8_t RD */
+#define ATTR_MOTOR_STEERING_STATUS_CODE_ID 		969
+#define ATTR_MOTOR_STEERING_STATUS_CODE(_val) 		sacp::Attribute(969, (uint16_t)_val) 		/* 969  ATTR_MOTOR_STEERING_STATUS_CODE          uint16_t RD */
+#define ATTR_MOTOR_STEERING_EMERGENCY_ERROR_CODE_ID 		970
+#define ATTR_MOTOR_STEERING_EMERGENCY_ERROR_CODE(_val) 		sacp::Attribute(970, (uint16_t)_val) 		/* 970  ATTR_MOTOR_STEERING_EMERGENCY_ERROR_CODE uint16_t RD */
+#define ATTR_MOTOR_STEERING_EMERGENCY_STATUS_CODE_ID 		971
+#define ATTR_MOTOR_STEERING_EMERGENCY_STATUS_CODE(_val) 		sacp::Attribute(971, (uint8_t)_val) 		/* 971  ATTR_MOTOR_STEERING_EMERGENCY_STATUS_CODE uint8_t RD */
+#define ATTR_MOTOR_STEERING_ERROR_STATUS_ID 		972
+#define ATTR_MOTOR_STEERING_ERROR_STATUS(_val) 		sacp::Attribute(972, (uint32_t)_val) 		/* 972  ATTR_MOTOR_STEERING_ERROR_STATUS         uint32_t RD */
+#define ATTR_MOTOR_STEERING_DEBUG_TARGET_ID 		973
+#define ATTR_MOTOR_STEERING_DEBUG_TARGET(_val) 		sacp::Attribute(973, (float)_val) 		/* 973  ATTR_MOTOR_STEERING_DEBUG_TARGET         float  RW */
+#define ATTR_MOTOR_STEERING_EXTRA_COMMAND_ID 		974
+#define ATTR_MOTOR_STEERING_EXTRA_COMMAND(_val) 		sacp::Attribute(974, (uint32_t)_val) 		/* 974  ATTR_MOTOR_STEERING_EXTRA_COMMAND        uint32_t RW */
+
+/* Total: 100 */
+
+
+/* 属性组 - motion */
+
+#define ATTR_MOTION_TARGET_VELOCITY_ID 		1000
+#define ATTR_MOTION_TARGET_VELOCITY(_val) 		sacp::Attribute(1000, (float)_val) 		/* 1000 ATTR_MOTION_TARGET_VELOCITY              float  RD */
+#define ATTR_MOTION_TARGET_STEERING_ANGLE_ID 		1001
+#define ATTR_MOTION_TARGET_STEERING_ANGLE(_val) 		sacp::Attribute(1001, (float)_val) 		/* 1001 ATTR_MOTION_TARGET_STEERING_ANGLE        float  RD */
+#define ATTR_MOTION_REAL_VELOCITY_ID 		1002
+#define ATTR_MOTION_REAL_VELOCITY(_val) 		sacp::Attribute(1002, (float)_val) 		/* 1002 ATTR_MOTION_REAL_VELOCITY                float  RD */
+#define ATTR_MOTION_REAL_STEERING_ANGLE_ID 		1003
+#define ATTR_MOTION_REAL_STEERING_ANGLE(_val) 		sacp::Attribute(1003, (float)_val) 		/* 1003 ATTR_MOTION_REAL_STEERING_ANGLE          float  RD */
+#define ATTR_MOTION_RIGHT_WHEEL_TARGET_VELOCITY_ID 		1004
+#define ATTR_MOTION_RIGHT_WHEEL_TARGET_VELOCITY(_val) 		sacp::Attribute(1004, (float)_val) 		/* 1004 ATTR_MOTION_RIGHT_WHEEL_TARGET_VELOCITY  float  RD */
+#define ATTR_MOTION_LEFT_WHEEL_TARGET_VELOCITY_ID 		1005
+#define ATTR_MOTION_LEFT_WHEEL_TARGET_VELOCITY(_val) 		sacp::Attribute(1005, (float)_val) 		/* 1005 ATTR_MOTION_LEFT_WHEEL_TARGET_VELOCITY   float  RD */
+#define ATTR_MOTION_FRONT_WHEEL_TARGET_VELOCITY_ID 		1006
+#define ATTR_MOTION_FRONT_WHEEL_TARGET_VELOCITY(_val) 		sacp::Attribute(1006, (float)_val) 		/* 1006 ATTR_MOTION_FRONT_WHEEL_TARGET_VELOCITY  float  RD */
+#define ATTR_MOTION_RIGHT_WHEEL_REAL_VELOCITY_ID 		1007
+#define ATTR_MOTION_RIGHT_WHEEL_REAL_VELOCITY(_val) 		sacp::Attribute(1007, (float)_val) 		/* 1007 ATTR_MOTION_RIGHT_WHEEL_REAL_VELOCITY    float  RD */
+#define ATTR_MOTION_LEFT_WHEEL_REAL_VELOCITY_ID 		1008
+#define ATTR_MOTION_LEFT_WHEEL_REAL_VELOCITY(_val) 		sacp::Attribute(1008, (float)_val) 		/* 1008 ATTR_MOTION_LEFT_WHEEL_REAL_VELOCITY     float  RD */
+#define ATTR_MOTION_FRONT_WHEEL_REAL_VELOCITY_ID 		1009
+#define ATTR_MOTION_FRONT_WHEEL_REAL_VELOCITY(_val) 		sacp::Attribute(1009, (float)_val) 		/* 1009 ATTR_MOTION_FRONT_WHEEL_REAL_VELOCITY    float  RD */
+#define ATTR_MOTION_RIGHT_MOTOR_REAL_VELOCITY_ID 		1010
+#define ATTR_MOTION_RIGHT_MOTOR_REAL_VELOCITY(_val) 		sacp::Attribute(1010, (float)_val) 		/* 1010 ATTR_MOTION_RIGHT_MOTOR_REAL_VELOCITY    float  RD */
+#define ATTR_MOTION_LEFT_MOTOR_REAL_VELOCITY_ID 		1011
+#define ATTR_MOTION_LEFT_MOTOR_REAL_VELOCITY(_val) 		sacp::Attribute(1011, (float)_val) 		/* 1011 ATTR_MOTION_LEFT_MOTOR_REAL_VELOCITY     float  RD */
+#define ATTR_MOTION_FRONT_MOTOR_REAL_VELOCITY_ID 		1012
+#define ATTR_MOTION_FRONT_MOTOR_REAL_VELOCITY(_val) 		sacp::Attribute(1012, (float)_val) 		/* 1012 ATTR_MOTION_FRONT_MOTOR_REAL_VELOCITY    float  RD */
+#define ATTR_MOTION_RIGHT_MOTOR_REAL_CURRENT_ID 		1013
+#define ATTR_MOTION_RIGHT_MOTOR_REAL_CURRENT(_val) 		sacp::Attribute(1013, (float)_val) 		/* 1013 ATTR_MOTION_RIGHT_MOTOR_REAL_CURRENT     float  RD */
+#define ATTR_MOTION_LEFT_MOTOR_REAL_CURRENT_ID 		1014
+#define ATTR_MOTION_LEFT_MOTOR_REAL_CURRENT(_val) 		sacp::Attribute(1014, (float)_val) 		/* 1014 ATTR_MOTION_LEFT_MOTOR_REAL_CURRENT      float  RD */
+#define ATTR_MOTION_FRONT_MOTOR_REAL_CURRENT_ID 		1015
+#define ATTR_MOTION_FRONT_MOTOR_REAL_CURRENT(_val) 		sacp::Attribute(1015, (float)_val) 		/* 1015 ATTR_MOTION_FRONT_MOTOR_REAL_CURRENT     float  RD */
+#define ATTR_MOTION_STEERING_MOTOR_REAL_CURRENT_ID 		1016
+#define ATTR_MOTION_STEERING_MOTOR_REAL_CURRENT(_val) 		sacp::Attribute(1016, (float)_val) 		/* 1016 ATTR_MOTION_STEERING_MOTOR_REAL_CURRENT  float  RD */
+#define ATTR_MOTION_RIGHT_WHEEL_DELTA_DISTANCE_ID 		1017
+#define ATTR_MOTION_RIGHT_WHEEL_DELTA_DISTANCE(_val) 		sacp::Attribute(1017, (float)_val) 		/* 1017 ATTR_MOTION_RIGHT_WHEEL_DELTA_DISTANCE   float  RD */
+#define ATTR_MOTION_LEFT_WHEEL_DELTA_DISTANCE_ID 		1018
+#define ATTR_MOTION_LEFT_WHEEL_DELTA_DISTANCE(_val) 		sacp::Attribute(1018, (float)_val) 		/* 1018 ATTR_MOTION_LEFT_WHEEL_DELTA_DISTANCE    float  RD */
+#define ATTR_MOTION_FRONT_WHEEL_DELTA_DISTANCE_ID 		1019
+#define ATTR_MOTION_FRONT_WHEEL_DELTA_DISTANCE(_val) 		sacp::Attribute(1019, (float)_val) 		/* 1019 ATTR_MOTION_FRONT_WHEEL_DELTA_DISTANCE   float  RD */
+#define ATTR_MOTION_RIGHT_WHEEL_ODOMETER_ID 		1020
+#define ATTR_MOTION_RIGHT_WHEEL_ODOMETER(_val) 		sacp::Attribute(1020, (float)_val) 		/* 1020 ATTR_MOTION_RIGHT_WHEEL_ODOMETER         float  RD */
+#define ATTR_MOTION_LEFT_WHEEL_ODOMETER_ID 		1021
+#define ATTR_MOTION_LEFT_WHEEL_ODOMETER(_val) 		sacp::Attribute(1021, (float)_val) 		/* 1021 ATTR_MOTION_LEFT_WHEEL_ODOMETER          float  RD */
+#define ATTR_MOTION_FRONT_WHEEL_ODOMETER_ID 		1022
+#define ATTR_MOTION_FRONT_WHEEL_ODOMETER(_val) 		sacp::Attribute(1022, (float)_val) 		/* 1022 ATTR_MOTION_FRONT_WHEEL_ODOMETER         float  RD */
+#define ATTR_MOTION_RIGHT_MOTOR_DELTA_DISTANCE_ID 		1023
+#define ATTR_MOTION_RIGHT_MOTOR_DELTA_DISTANCE(_val) 		sacp::Attribute(1023, (float)_val) 		/* 1023 ATTR_MOTION_RIGHT_MOTOR_DELTA_DISTANCE   float  RD */
+#define ATTR_MOTION_LEFT_MOTOR_DELTA_DISTANCE_ID 		1024
+#define ATTR_MOTION_LEFT_MOTOR_DELTA_DISTANCE(_val) 		sacp::Attribute(1024, (float)_val) 		/* 1024 ATTR_MOTION_LEFT_MOTOR_DELTA_DISTANCE    float  RD */
+#define ATTR_MOTION_FRONT_MOTOR_DELTA_DISTANCE_ID 		1025
+#define ATTR_MOTION_FRONT_MOTOR_DELTA_DISTANCE(_val) 		sacp::Attribute(1025, (float)_val) 		/* 1025 ATTR_MOTION_FRONT_MOTOR_DELTA_DISTANCE   float  RD */
+#define ATTR_MOTION_RIGHT_MOTOR_ODOMETER_ID 		1026
+#define ATTR_MOTION_RIGHT_MOTOR_ODOMETER(_val) 		sacp::Attribute(1026, (float)_val) 		/* 1026 ATTR_MOTION_RIGHT_MOTOR_ODOMETER         float  RD */
+#define ATTR_MOTION_LEFT_MOTOR_ODOMETER_ID 		1027
+#define ATTR_MOTION_LEFT_MOTOR_ODOMETER(_val) 		sacp::Attribute(1027, (float)_val) 		/* 1027 ATTR_MOTION_LEFT_MOTOR_ODOMETER          float  RD */
+#define ATTR_MOTION_FRONT_MOTOR_ODOMETER_ID 		1028
+#define ATTR_MOTION_FRONT_MOTOR_ODOMETER(_val) 		sacp::Attribute(1028, (float)_val) 		/* 1028 ATTR_MOTION_FRONT_MOTOR_ODOMETER         float  RD */
+#define ATTR_MOTION_SET_VELOCITY_ID 		1050
+#define ATTR_MOTION_SET_VELOCITY(_val) 		sacp::Attribute(1050, (float)_val) 		/* 1050 ATTR_MOTION_SET_VELOCITY                 float  RW */
+#define ATTR_MOTION_SET_STEERING_ANGLE_ID 		1051
+#define ATTR_MOTION_SET_STEERING_ANGLE(_val) 		sacp::Attribute(1051, (float)_val) 		/* 1051 ATTR_MOTION_SET_STEERING_ANGLE           float  RW */
+
+/* Total: 31 */
+
+
+// 总共 386 Attributes 
 
 #endif // __ROBOT_N1_ATTRIBUTES_H__ 

@@ -33,7 +33,8 @@ NodeManager::NodeManager(std::string const &name)
     node_pushbox_ = std::make_shared<NodePushBox>("pushbox", sacp_client);
     node_pumpbox_ = std::make_shared<NodePumpBox>("pumpbox", sacp_client);
     node_ledlight_ = std::make_shared<NodeLedLight>("ledlight", sacp_client);
-    node_lifter_ = std::make_shared<NodeLifter>("lifter", sacp_client);    
+    node_lifter_ = std::make_shared<NodeLifter>("lifter", sacp_client);   
+    node_motion_ = std::make_shared<NodeMotion>("motor", sacp_client);    
 
 }
 
@@ -48,7 +49,8 @@ void NodeManager::bind(rclcpp::executors::SingleThreadedExecutor & executor)
     executor.add_node(node_pushbox_);
     executor.add_node(node_pumpbox_);
     executor.add_node(node_ledlight_);
-    executor.add_node(node_lifter_);    
+    executor.add_node(node_lifter_);  
+    executor.add_node(node_motion_);    
 }
 
 /// 启动SACP客户端
@@ -58,6 +60,15 @@ bool NodeManager::start()
         // 根据上报的数据类型，分发给不同的节点
         switch(group)
         {
+            case REPORT_GROUP_MOTION_STATE1:
+            case REPORT_GROUP_MOTION_STATE2:
+            case REPORT_ID(_REPORT_MOTOR_BASE, _MOTOR_INFO1):  
+            case REPORT_ID(_REPORT_MOTOR_BASE, _MOTOR_INFO2):  
+            case REPORT_ID(_REPORT_MOTOR_BASE, _MOTOR_ADMIN_STATUS):
+            case REPORT_ID(_REPORT_MOTOR_BASE, _MOTOR_STATE):
+                node_motion_->report_handle(group, attributes);      
+            break;
+
             case REPORT_ID(_REPORT_POWERBOX_BASE, _DEVICE_INFO):  
             case REPORT_ID(_REPORT_POWERBOX_BASE, _ADMIN_STATUS):
             case REPORT_ID(_REPORT_POWERBOX_BASE, _RUNNING_STATE):        

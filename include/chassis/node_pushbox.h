@@ -39,8 +39,8 @@ public:
         service_control_ = this->create_service<SrvPushBoxControl>(
             this->type_ + "/push_action", [this](const std::shared_ptr<SrvPushBoxControlRequest> req, 
                 std::shared_ptr<SrvPushBoxControlResponse> resp){
-            slog::info("pushbox control, address={} action={}", req->address, req->control);            
-            auto result = robot::n1::set_pushbox_control(sacp_client_, req->address, req->control);
+            slog::info("pushbox control, index={} action={}", req->index, req->control);            
+            auto result = robot::n1::set_pushbox_control(sacp_client_, (robot::n1::DeviceIndex)req->index, req->control);
             if (result->status == sacp::SacpClient::OperationStatus::Ok){
                 resp->status = true;
                 resp->status_info = "success";
@@ -53,9 +53,9 @@ public:
         service_get_offline_config_ = this->create_service<SrvPushBoxGetOfflineConfig>(
             this->type_ + "/set_offline_config", [this](const std::shared_ptr<SrvPushBoxGetOfflineConfigRequest> req, 
                 std::shared_ptr<SrvPushBoxGetOfflineConfigResponse> resp){
-            slog::info("get pushbox offline config, address={}", req->address);  
+            slog::info("get pushbox offline config, index={}", req->index);  
 
-            auto result = robot::n1::get_pushbox_offline_config(sacp_client_, req->address, *resp);
+            auto result = robot::n1::get_pushbox_offline_config(sacp_client_, (robot::n1::DeviceIndex)req->index, *resp);
             if (result->status == sacp::SacpClient::OperationStatus::Ok){
                 resp->status = true;
                 resp->status_info = "success";
@@ -68,8 +68,8 @@ public:
         service_set_offline_config_ = this->create_service<SrvPushBoxSetOfflineConfig>(
             this->type_ + "/get_offline_config", [this](const std::shared_ptr<SrvPushBoxSetOfflineConfigRequest> req, 
                 std::shared_ptr<SrvPushBoxSetOfflineConfigResponse> resp){
-            slog::info("set pushbox offline config, address={} enable={} minute={}", req->address, req->enable, req->minute);            
-            auto result = robot::n1::set_pushbox_offline_config(sacp_client_, req->address, *req);
+            slog::info("set pushbox offline config, index={} enable={} minute={}", req->index, req->enable, req->minute);            
+            auto result = robot::n1::set_pushbox_offline_config(sacp_client_, (robot::n1::DeviceIndex)req->index, *req);
             if (result->status == sacp::SacpClient::OperationStatus::Ok){
                 resp->status = true;
                 resp->status_info = "success";
@@ -91,39 +91,39 @@ public:
         {
             case REPORT_ID(_REPORT_PUSHBOX_BASE, _DEVICE_INFO):  
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::PushBox;
                 MsgDeviceBreif brief;
-                bool result = robot::n1::parse_pushbox_device_brief(attributes, address, brief);
+                bool result = robot::n1::parse_pushbox_device_brief(attributes, index, brief);
                 if (result)
                 {
-                    slog::trace("parse pushbox({}) brief info success", address);
-                    set_device_brief(address, brief);
+                    slog::trace("parse pushbox({}) brief info success", (uint8_t)index);
+                    set_device_brief((uint8_t)index, brief);
                 }            
             }
             break;
 
             case REPORT_ID(_REPORT_PUSHBOX_BASE, _ADMIN_STATUS):
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::PushBox;
                 MsgAdminStatus status;
-                bool result = robot::n1::parse_pushbox_admin_status(attributes, address, status);
+                bool result = robot::n1::parse_pushbox_admin_status(attributes, index, status);
                 if (result)
                 {
-                    slog::trace("parse pushbox({}) admin status success", address);
-                    report_admin_status(address, status);
+                    slog::trace("parse pushbox({}) admin status success", (uint8_t)index);
+                    report_admin_status((uint8_t)index, status);
                 }
             }        
             break;
 
             case REPORT_ID(_REPORT_PUSHBOX_BASE, _RUNNING_STATE):
             {
-                uint8_t address = 0;
+                robot::n1::DeviceIndex index = robot::n1::DeviceIndex::PushBox;
                 MsgPushBoxState state;
-                bool result = robot::n1::parse_pushbox_device_state(attributes, address, state);
+                bool result = robot::n1::parse_pushbox_device_state(attributes, index, state);
                 if (result)
                 {
-                    slog::trace("parse pushbox({}) device state success", address);
-                    report_device_state(address, state);
+                    slog::trace("parse pushbox({}) device state success", (uint8_t)index);
+                    report_device_state((uint8_t)index, state);
                 }
             }        
             break;
@@ -131,12 +131,12 @@ public:
     } 
 
     /// @brief  主动获取设备信息
-    /// @param address 
+    /// @param index 
     /// @param info 
     /// @return 
-    bool get_device_info(uint8_t address, MsgDeviceInfo & info) override
+    bool get_device_info(uint8_t index, MsgDeviceInfo & info) override
     {        
-        auto result = robot::n1::read_pushbox_info(sacp_client_, address, info);
+        auto result = robot::n1::read_pushbox_info(sacp_client_, static_cast<robot::n1::DeviceIndex>(index), info);
         return (result->status == sacp::SacpClient::OperationStatus::Ok);        
     }    
 

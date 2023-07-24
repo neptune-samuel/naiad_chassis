@@ -62,6 +62,7 @@ NodeChassis::NodeChassis(std::string const &name): rclcpp::Node(name)
 
     info_publisher_ = this->create_publisher<MsgControllerInfo>("controller/info", 10);
     state_publisher_ = this->create_publisher<MsgControllerState>("controller/state", 10);
+    depth_data_publisher_ = this->create_publisher<MsgDepthData>("sensor_depth/data", 10);
 
     // 打印一些信息
     log_->info("parameter serial_port={}", parameters_.serial_port);
@@ -115,18 +116,9 @@ void NodeChassis::timer_handle(void)
             controller_info_.header.frame_id = "controller";
             info_publisher_->publish(controller_info_);
 
-            // 打印版本
-            auto version_string = [](uint32_t version) -> std::string 
-            {
-                char buf[32] = {};
-                sprintf(buf, "V%d.%d.%d", (version >> 24) & 0xff, (version >> 16) & 0xff, (version) & 0xff);
-                return std::string(buf);
-            };
-
             slog::info("Controller info: model:{} sn:{}, software version:{}, hardware version:{}", 
                 controller_info_.model, controller_info_.serial_number, 
-                version_string(controller_info_.software_version),
-                version_string(controller_info_.hardware_version));
+                controller_info_.software_version, controller_info_.hardware_version);
 
             controller_info_synced = true;
         }
@@ -171,6 +163,25 @@ void NodeChassis::sacp_report_handle(std::vector<sacp::Attribute> const & attrib
             return ;
         }  
         break;
+
+        case REPORT_GROUP_DEPTH_SENSOR:
+        {
+            MsgDepthData data;
+            bool result = robot::n1::parse_depth_sensor_data(attributes, data);
+            if (result)
+            {
+                //slog::trace("parse depth senosr success");
+
+                data.header.stamp = this->get_clock()->now();
+                data.header.frame_id = "depth_sensor";
+                depth_data_publisher_->publish(data);
+            }
+
+            // 直接返回
+            return ;
+        }  
+        break;
+        
     }
 
     /// 如果有指定其他上报处理函数

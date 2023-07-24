@@ -64,21 +64,21 @@ public:
     } 
 
     /// @brief  主动获取设备信息
-    /// @param address 
+    /// @param index 
     /// @param info 
     /// @return 
-    virtual bool get_device_info([[maybe_unused]]uint8_t address, [[maybe_unused]]MsgDeviceInfo & info)
+    virtual bool get_device_info([[maybe_unused]]uint8_t index, [[maybe_unused]]MsgDeviceInfo & info)
     {
         return false;
     }
        
 protected:
 
-    void set_device_brief(uint8_t address, MsgDeviceBreif const &brief)
+    void set_device_brief(uint8_t index, MsgDeviceBreif const &brief)
     {
         // 先找一下设备，如果没有，就创建一个新的
         auto it = std::find_if(devices_.begin(), devices_.end(), [&](MsgDeviceInfo const & dev){
-            return (dev.device_id.address == address);
+            return (dev.device_id.index == index);
         });
 
         // 如果不存在，就创建一个新的
@@ -87,27 +87,27 @@ protected:
             MsgDeviceInfo dev;
             dev.device_brief = brief;       
             dev.device_id.type = type_;
-            dev.device_id.address = address; 
+            dev.device_id.index = index; 
 
             {
                 //std::lock_guard<std::mutex> lock(devices_mutex_);
                 devices_.emplace_back(dev); 
             }
 
-            slog::info("New device({}-{}) added", type_, address);
+            slog::info("New device({}-{}) added", type_, index);
         }
         else 
         {                    
             it->device_brief = brief;
-            slog::trace("device-{} brief info updated", address);            
+            slog::trace("device-{} brief info updated", index);            
         }
     }
 
-    void report_admin_status(uint8_t address, MsgAdminStatus const &status)
+    void report_admin_status(uint8_t index, MsgAdminStatus const &status)
     {
         // 更新管理状态，必须是已存在设备
         auto it = std::find_if(devices_.begin(), devices_.end(), [&](MsgDeviceInfo const & dev){
-            return (dev.device_id.address == address);
+            return (dev.device_id.index == index);
         });
 
         // 如果不存在，就创建一个新的
@@ -124,14 +124,14 @@ protected:
                 switch(state)
                 {
                     case DeviceState::Offline:
-                        slog::error("{}-{} link down", type_, address);
+                        slog::error("{}-{} link down", type_, index);
                     break;
 
                     case DeviceState::Online:
-                        slog::info("{}-{} link up, model:{} name:{}", type_, address, it->device_brief.model, it->device_brief.name);
+                        slog::info("{}-{} link up, model:{} name:{}", type_, index, it->device_brief.model, it->device_brief.name);
                     break;
                     case DeviceState::OnlineWithAlarm:
-                        slog::warning("{}-{} link up with alaram", type_, address);
+                        slog::warning("{}-{} link up with alaram", type_, index);
                     break;
                 }                
             }
@@ -140,21 +140,21 @@ protected:
 
             // 发布一个信息
             info_publisher_->publish(*it); 
-            slog::trace("{}-{} info published", type_, address);
+            slog::trace("{}-{} info published", type_, index);
         }
         else
         {
-            slog::warning("receive admin-status before created(address={})", address);
-            update_device_info_async(address);
+            slog::warning("receive admin-status before created(index={})", index);
+            update_device_info_async(index);
         }
     }
 
     // 上报设备的状态
-    void report_device_state(uint8_t address, DeviceStateType &state)
+    void report_device_state(uint8_t index, DeviceStateType &state)
     {
         // 更新设备状态，必须是已存在设备
         auto it = std::find_if(devices_.begin(), devices_.end(), [&](MsgDeviceInfo const & dev){
-            return (dev.device_id.address == address);
+            return (dev.device_id.index == index);
         });
 
         // 如果不存在，就创建一个新的
@@ -164,48 +164,48 @@ protected:
             state.header.frame_id = type_;
 
             state.device_id.type = type_;
-            state.device_id.address = address;
+            state.device_id.index = index;
 
             // 发布一个信息
             state_publisher_->publish(state); 
-            slog::trace("{}-{} satate published", type_, address);
+            slog::trace("{}-{} satate published", type_, index);
         }
         else
         {
-            slog::warning("receive device-state before created(address={})", address);
-            update_device_info_async(address);
+            slog::warning("receive device-state before created(index={})", index);
+            update_device_info_async(index);
         }
     }
 
     /// @brief 启动设备信息同步
-    /// @param address 
-    void update_device_info_async(uint8_t address)
+    /// @param index 
+    void update_device_info_async(uint8_t index)
     {
-        for (auto addr : care_device_address_){
+        for (auto addr : care_device_index_){
             // 如果已在里面了，直接退出
-            if (addr == address){
+            if (addr == index){
                 return;
             }
         }
 
         // 将需要更新的地址加入进来
-        care_device_address_.push_back(address);
+        care_device_index_.push_back(index);
 
         // 如果异步正在执行，不再启动
         if (!async_running_){
             async_running_ = true;
 
             async_result_ = std::async(std::launch::async, [&]{                
-                int num = care_device_address_.size();
+                int num = care_device_index_.size();
                 //slog::debug("start fetching {} info, num={}", this->type_, num);
                 int count = 0;
 
                 for (int i = 0; i < num; i ++){
                     MsgDeviceInfo info;
-                    uint8_t address = care_device_address_[i];
-                    if (get_device_info(address, info)){
-                        set_device_brief(address, info.device_brief);
-                        report_admin_status(address, info.admin_status);
+                    uint8_t index = care_device_index_[i];
+                    if (get_device_info(index, info)){
+                        set_device_brief(index, info.device_brief);
+                        report_admin_status(index, info.admin_status);
                         count ++;
                     }
                 }
@@ -213,7 +213,7 @@ protected:
                 slog::debug("{} {} info updated", count, this->type_);
 
                 // 清空队列 
-                decltype(care_device_address_)().swap(care_device_address_);
+                decltype(care_device_index_)().swap(care_device_index_);
                 
                 async_running_ = false;
             });
@@ -243,7 +243,7 @@ protected:
     std::future<void> async_result_;    
 
     //需更新的设备信息的地址
-    std::vector<uint8_t> care_device_address_;
+    std::vector<uint8_t> care_device_index_;
 
     // 异步处理是否在运行
     bool async_running_ = false;

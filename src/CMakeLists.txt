@@ -5,12 +5,15 @@ set(CHASSIS_NAME ${PROJECT_NAME})
 set(ROBOT_N1_SRCS 
     robot_n1/attribute_helper.cpp
     robot_n1/controller_request.cpp 
+    robot_n1/depth_sensor_request.cpp 
     robot_n1/fogbox_request.cpp 
     robot_n1/ledlight_request.cpp 
     robot_n1/lifter_request.cpp 
     robot_n1/powerbox_request.cpp 
     robot_n1/pumpbox_request.cpp 
-    robot_n1/pushbox_request.cpp)
+    robot_n1/pushbox_request.cpp
+    robot_n1/motion_request.cpp
+    )
 
 add_executable(${CHASSIS_NAME} 
     main.cpp 

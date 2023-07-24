@@ -14,6 +14,7 @@
 #include "attribute_helper.h"
 #include "sacp_client/sacp_client.h"
 #include "chassis/chassis_type.h"
+#include "device_index.h"
 
 
 namespace robot{
@@ -31,7 +32,7 @@ namespace n1
  * @return false 
  */
 bool parse_pushbox_device_brief(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgDeviceBreif &device)
+   DeviceIndex & index, naiad::chassis::MsgDeviceBreif &device)
 {
     const sacp::AttributeArray pattern = 
     {
@@ -44,28 +45,17 @@ bool parse_pushbox_device_brief(sacp::AttributeArray const &attrs,
     };
 
     size_t offset = 0;
-    uint8_t index = 0;
-
-    // if (!parse_attributes_range(attrs, ATTR_PUSHBOX_MODEL_ID, ATTR_LIFTER_B_MODEL_ID, offset, index))
-    // {
-    //     return false;
-    // }    
-
     size_t failed = 0;
 
     device.model = get_attribute(attrs, failed, pattern[0], offset).get_string();
     device.serial_number = get_attribute(attrs, failed, pattern[1], offset).get_string(); 
-    device.hardware_version = get_attribute(attrs, failed, pattern[2], offset).get_uint16(); 
-    device.software_version = get_attribute(attrs, failed, pattern[3], offset).get_uint16(); 
-    //address = get_attribute(attrs, failed, pattern[4], offset).get_uint8();    
+    device.hardware_version = naiad::chassis::version16_string(get_attribute(attrs, failed, pattern[2], offset).get_uint16()); 
+    device.software_version = naiad::chassis::version16_string(get_attribute(attrs, failed, pattern[3], offset).get_uint16()); 
+    uint8_t address = get_attribute(attrs, failed, pattern[4], offset).get_uint8();
+    device.address_info = std::to_string(address);     
     device.name = get_attribute(attrs, failed, pattern[5], offset).get_string(); 
-    
-    // if (address != (index + 1))
-    // {
-    //     slog::warning("receive report with unexpected device address, got:{}, expect:{}", address, (index + 1));        
-    // }
 
-    address = index + 1;
+    index = DeviceIndex::PushBox;
 
     return (failed == 0);
 }
@@ -80,7 +70,7 @@ bool parse_pushbox_device_brief(sacp::AttributeArray const &attrs,
  * @return false 
  */
 bool parse_pushbox_admin_status(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgAdminStatus &device)
+   DeviceIndex & index, naiad::chassis::MsgAdminStatus &device)
 {
 
     const sacp::AttributeArray pattern = 
@@ -91,20 +81,12 @@ bool parse_pushbox_admin_status(sacp::AttributeArray const &attrs,
     };
 
     size_t offset = 0;
-    uint8_t index = 0;
-
-    // if (!parse_attributes_range(attrs, ATTR_PUSHBOX_LINK_STATUS_ID, ATTR_LIFTER_B_LINK_STATUS_ID, offset, index))
-    // {
-    //     return false;
-    // }   
-
     size_t failed = 0;
 
     device.link_status = get_attribute(attrs, failed, pattern[0], offset).get_uint8(); 
     device.connected_time = get_attribute(attrs, failed, pattern[1], offset).get_uint32(); 
     device.disconnected_time = get_attribute(attrs, failed, pattern[2], offset).get_uint32(); 
-
-    address = index + 1;
+    index = DeviceIndex::PushBox;
 
     return (failed == 0);
 }
@@ -119,7 +101,7 @@ bool parse_pushbox_admin_status(sacp::AttributeArray const &attrs,
  * @return false 
  */
 bool parse_pushbox_device_state(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::MsgPushBoxState &device)
+   DeviceIndex & index, naiad::chassis::MsgPushBoxState &device)
 {
 
     const sacp::AttributeArray pattern = 
@@ -140,13 +122,6 @@ bool parse_pushbox_device_state(sacp::AttributeArray const &attrs,
     };
 
     size_t offset = 0;
-    uint8_t index = 0;
-
-    // if (!parse_attributes_range(attrs, ATTR_PUSHBOX_POSITION_ID, ATTR_LIFTER_B_POSITION_ID, offset, index))
-    // {
-    //     return false;
-    // }   
-
     size_t failed = 0;
 
     device.state = get_attribute(attrs, failed, pattern[0], offset).get_uint16(); 
@@ -162,9 +137,7 @@ bool parse_pushbox_device_state(sacp::AttributeArray const &attrs,
     device.battery_is_charging = get_attribute(attrs, failed, pattern[10], offset).get_bool();  
     device.battery_voltage_status = get_attribute(attrs, failed, pattern[11], offset).get_uint16();  
     device.battery_current_status = get_attribute(attrs, failed, pattern[12], offset).get_uint16();  
-
-
-    address = index + 1;
+    index = DeviceIndex::PushBox;
 
     return (failed == 0);
 }
@@ -180,7 +153,7 @@ bool parse_pushbox_device_state(sacp::AttributeArray const &attrs,
  * @return false 
  */
 bool parse_pushbox_offline_config(sacp::AttributeArray const &attrs, 
-   uint8_t & address, naiad::chassis::SrvPushBoxGetOfflineConfigResponse &config)
+   DeviceIndex & index, naiad::chassis::SrvPushBoxGetOfflineConfigResponse &config)
 {
 
     const sacp::AttributeArray pattern = 
@@ -190,14 +163,12 @@ bool parse_pushbox_offline_config(sacp::AttributeArray const &attrs,
     };
 
     size_t offset = 0;
-    uint8_t index = 0;
-
     size_t failed = 0;
 
     config.enable = get_attribute(attrs, failed, pattern[0], offset).get_bool(); 
     config.minute = get_attribute(attrs, failed, pattern[1], offset).get_uint16(); 
 
-    address = index + 1;
+    index = DeviceIndex::PushBox;
 
     return (failed == 0);
 }
@@ -208,7 +179,7 @@ bool parse_pushbox_offline_config(sacp::AttributeArray const &attrs,
 /// @param position 
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> set_pushbox_control(
-    std::shared_ptr<sacp::SacpClient> client, [[maybe_unused]]uint8_t address, uint8_t control)
+    std::shared_ptr<sacp::SacpClient> client, [[maybe_unused]]DeviceIndex index, uint8_t control)
 {
 
     if (!client->is_running())
@@ -216,11 +187,6 @@ std::unique_ptr<sacp::SacpClient::OperationResult> set_pushbox_control(
         return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::InternalError);    
     }
 
-    // 0 - 2 is valid
-    // if (position > 100)
-    // {
-    //     return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::InvalidParameter);
-    // }
     std::vector<sacp::Attribute> attrs = {
                 ATTR_PUSHBOX_CONTROL(control)
             };
@@ -236,24 +202,19 @@ std::unique_ptr<sacp::SacpClient::OperationResult> set_pushbox_control(
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> read_pushbox_info(
     std::shared_ptr<sacp::SacpClient> client, 
-     [[maybe_unused]]uint8_t address, naiad::chassis::MsgDeviceInfo & info)
+     [[maybe_unused]]DeviceIndex index, naiad::chassis::MsgDeviceInfo & info)
 {
     if (!client->is_running())
     {
         return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::InternalError);    
     }
 
-    // if ((address < 1) || (address > 4))
-    // {
-    //     return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::NoSuchObject);
-    // }
-
     std::vector<sacp::Attribute> attrs = {
         ATTR_PUSHBOX_MODEL(""), 		     
         ATTR_PUSHBOX_SN(""), 		         
         ATTR_PUSHBOX_HW_VERSION(0), 		 
         ATTR_PUSHBOX_SW_VERSION(0),		 
-        /*ATTR_PUSHBOX_ADDRESS(0), */ 		 
+        ATTR_PUSHBOX_ADDRESS(0), 		 
         ATTR_PUSHBOX_NAME(""), 		     
         ATTR_PUSHBOX_LINK_STATUS(0), 	
         ATTR_PUSHBOX_CONNECTED_TIME(0), 	
@@ -271,8 +232,8 @@ std::unique_ptr<sacp::SacpClient::OperationResult> read_pushbox_info(
         return result;
     }
 
-    bool ret1 = parse_pushbox_device_brief(result->attributes, address, info.device_brief);
-    bool ret2 = parse_pushbox_admin_status(result->attributes, address, info.admin_status);
+    bool ret1 = parse_pushbox_device_brief(result->attributes, index, info.device_brief);
+    bool ret2 = parse_pushbox_admin_status(result->attributes, index, info.admin_status);
     
     if (ret1 && ret2)
     {
@@ -289,7 +250,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> read_pushbox_info(
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> get_pushbox_offline_config(
     std::shared_ptr<sacp::SacpClient> client, 
-     [[maybe_unused]]uint8_t address, naiad::chassis::SrvPushBoxGetOfflineConfigResponse & config)
+     [[maybe_unused]]DeviceIndex index, naiad::chassis::SrvPushBoxGetOfflineConfigResponse & config)
 {
     if (!client->is_running())
     {
@@ -317,7 +278,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> get_pushbox_offline_config(
         return result;
     }
 
-    bool ret = parse_pushbox_offline_config(result->attributes, address, config);
+    bool ret = parse_pushbox_offline_config(result->attributes, index, config);
     
     if (ret)
     {
@@ -335,7 +296,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> get_pushbox_offline_config(
 /// @return 
 std::unique_ptr<sacp::SacpClient::OperationResult> set_pushbox_offline_config(
     std::shared_ptr<sacp::SacpClient> client, 
-     [[maybe_unused]]uint8_t address, naiad::chassis::SrvPushBoxSetOfflineConfigRequest const & config)
+     [[maybe_unused]]DeviceIndex index, naiad::chassis::SrvPushBoxSetOfflineConfigRequest const & config)
 {
     if (!client->is_running())
     {

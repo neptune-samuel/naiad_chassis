@@ -11,5 +11,7 @@
 #include "powerbox_request.h"
 #include "pumpbox_request.h"
 #include "pushbox_request.h"
+#include "depth_sensor_request.h"
+#include "motion_request.h"
 
 #endif // __ROBOT_N1_H__
