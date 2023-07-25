@@ -39,35 +39,50 @@ namespace naiad
 namespace chassis
 {
 
+/// 参数名称 - 常量
+const std::string NodeChassis::SerialPort = "serial_port"; 
+const std::string NodeChassis::SerialOptions = "serial_options";
+const std::string NodeChassis::StdoutLogLevel = "stdout_log_level";
+const std::string NodeChassis::DebugTcpPort = "debug_tcp_port";
+
 
 NodeChassis::NodeChassis(std::string const &name): rclcpp::Node(name) 
 { 
     timer_ = this->create_wall_timer(std::chrono::milliseconds(1000), std::bind(&NodeChassis::timer_handle, this));
 
-    this->declare_parameter("serial_port", "/dev/ttyUSB0");
-    this->declare_parameter("serial_options", "460800");
-    this->declare_parameter("debug_tcp_port", 9600);
-
-    this->get_parameter("serial_port", parameters_.serial_port);
-    this->get_parameter("serial_options", parameters_.serial_options);
-    this->get_parameter("debug_tcp_port", parameters_.debug_tcp_port);
+    this->declare_parameter(SerialPort, "/dev/ttyTHS2");
+    this->declare_parameter(SerialOptions, "460800");
+    this->declare_parameter(StdoutLogLevel, "");
+    this->declare_parameter(DebugTcpPort, 9600);
 
     // 启动一个日志
-    log_ = slog::make_stdout_logger(this->get_name(), slog::LogLevel::Debug);
+    // 根据参数类型，启动一个日志
+    std::string const & stdout_loglevel = get_parameter(StdoutLogLevel).as_string();
+    if (!stdout_loglevel.empty()){
+        // 是否为合法的日志等级
+        auto level = slog::log_level_from_name(stdout_loglevel);
+        if (level == slog::LogLevel::None){
+            std::cout << "Unknown stdout log level, use default(info)" << std::endl;
+            level = slog::LogLevel::Info;
+        }
+        log_ = slog::make_stdout_logger(this->get_name(), level);
+    } else {
+        log_ = slog::make_ros_logger(this->get_name());
+    }
+
+    log_->info("parameter {}={}", SerialPort, get_parameter(SerialPort).as_string());
+    log_->info("parameter {}={}", SerialOptions,  get_parameter(SerialOptions).as_string());
+    log_->info("parameter {}={}", StdoutLogLevel,  get_parameter(StdoutLogLevel).as_string()); 
+    log_->info("parameter {}={}", DebugTcpPort,  get_parameter(DebugTcpPort).as_int());
 
     // 用这些参数创建一个SACP客户端
-    sacp_client_ = std::make_shared<sacp::SacpClient>(parameters_.serial_port, 
-        parameters_.serial_options, parameters_.debug_tcp_port, 
+    sacp_client_ = std::make_shared<sacp::SacpClient>(get_parameter(SerialPort).as_string(), 
+        get_parameter(SerialOptions).as_string(), get_parameter(DebugTcpPort).as_int(), 
         std::bind(&NodeChassis::sacp_report_handle, this, std::placeholders::_1));
 
     info_publisher_ = this->create_publisher<MsgControllerInfo>("controller/info", 10);
     state_publisher_ = this->create_publisher<MsgControllerState>("controller/state", 10);
     depth_data_publisher_ = this->create_publisher<MsgDepthData>("sensor_depth/data", 10);
-
-    // 打印一些信息
-    log_->info("parameter serial_port={}", parameters_.serial_port);
-    log_->info("parameter serial_options={}", parameters_.serial_options);
-    log_->info("parameter debug_tcp_port={}", parameters_.debug_tcp_port); 
 
     // 主控的信息服务    
     info_service_ = this->create_service<SrvControllerGetInfo>(

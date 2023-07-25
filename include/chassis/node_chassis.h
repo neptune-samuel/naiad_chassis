@@ -46,13 +46,13 @@ $ ros2 param list
 class NodeChassis:public rclcpp::Node 
 {
 public:
-    /// 定义一个类内的参数类型
-    struct Parameters
-    {
-        std::string serial_port;
-        std::string serial_options;
-        int debug_tcp_port;
-    };
+
+    // 参数常量
+    static const std::string SerialPort; 
+    static const std::string SerialOptions;
+    static const std::string StdoutLogLevel;
+    static const std::string DebugTcpPort;
+
 
     // 上报回调函数
     typedef std::function<void(uint8_t group, std::vector<sacp::Attribute> const & attributes)> SacpReportHandle;
@@ -60,11 +60,6 @@ public:
     // 构造函数
     NodeChassis(std::string const &name);
 
-    // 获取参数
-    Parameters const & get_boot_parameters() const
-    {
-        return parameters_;
-    }
 
     /// 返回控制器信息
     MsgControllerInfo const &get_controller_info() const
@@ -92,8 +87,6 @@ public:
     }
 
 private:
-    /// 参数
-    Parameters parameters_;
     /// 日志接口
     std::shared_ptr<slog::Logger> log_;    
     /// SACP客户端
