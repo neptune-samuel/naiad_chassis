@@ -42,13 +42,58 @@ public:
         OnlineWithAlarm = 2,
     };
 
-    NodeDevice(std::string const & type): 
+    NodeDevice(std::string const & type, uint8_t index_min = 0, uint8_t index_max = 0): 
         rclcpp::Node("naiad_" + type), 
+        index_min_(index_min),
+        index_max_(index_max),
         type_(type)
     {        
 
         info_publisher_ = this->create_publisher<MsgDeviceInfo>(type + "/info", 10);
         state_publisher_ = this->create_publisher<DeviceStateType>(type + "/state", 10);
+
+        // 创建一个服务
+        get_info_service_ = this->create_service<SrvDeviceGetInfo>(
+            this->type_ + "/get_info", [this](const std::shared_ptr<SrvDeviceGetInfoRequest> req, 
+                std::shared_ptr<SrvDeviceGetInfoResponse> resp){
+
+            slog::debug("{}: get device info, index=%d", type_, req->index);
+
+            if ((req->index >= index_min_) || (req->index <= index_max_)){
+                resp->status = true;
+                resp->status_info = "success";
+
+                // 先找一下设备，如果没有，返回离线设备
+                auto it = std::find_if(devices_.begin(), devices_.end(), [&](MsgDeviceInfo const & dev){
+                    return (dev.device_id.index == req->index);
+                });
+
+                // 如果不存在，返回一个常量
+                if (it == devices_.end())
+                {
+                    // 只需要写这些信息即可
+                    resp->info.device_id.type = type_;
+                    resp->info.device_id.index = req->index;
+                    resp->info.device_brief.address_info = "N/A";
+                    resp->info.device_brief.software_version = "N/A";
+                    resp->info.device_brief.hardware_version = "N/A";
+                    resp->info.device_brief.name = "N/A";
+                    resp->info.device_brief.model = "N/A";
+                    resp->info.device_brief.serial_number = "N/A";
+                    resp->info.admin_status.link_status = static_cast<uint8_t>(DeviceState::Offline);
+                    resp->info.admin_status.connected_time = 0;
+                    resp->info.admin_status.disconnected_time = 0;
+                }
+                else 
+                {                    
+                    resp->info = *it;
+                }        
+
+            } else {
+                resp->status = false;
+                resp->status_info = "unknown device index:" + std::to_string(req->index);
+            }
+        });          
 
         // 创建一个定时器
         timer_ = this->create_wall_timer(std::chrono::milliseconds(1000), std::bind(&NodeDevice::timer_handle, this));
@@ -237,6 +282,10 @@ protected:
     }
 
 protected:
+
+    uint8_t index_min_;
+    uint8_t index_max_;
+
     // 类型名称
     std::string type_;
 
@@ -255,6 +304,9 @@ protected:
     // 创建一个基本信息发布
     rclcpp::Publisher<MsgDeviceInfo>::SharedPtr info_publisher_;
     std::shared_ptr<rclcpp::Publisher<DeviceStateType>> state_publisher_;
+
+    // 设备信息服务
+    rclcpp::Service<SrvDeviceGetInfo>::SharedPtr get_info_service_;     
 
     // 异步调用结果, 不需要使用，但必须全局有效保留，不然的话异步会变成同步执行
     std::future<void> async_result_;    

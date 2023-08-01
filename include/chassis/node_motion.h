@@ -34,7 +34,7 @@ class NodeMotion: public NodeDevice<MsgMotorState>
 {
 public:
     NodeMotion(std::string const &type, std::shared_ptr<sacp::SacpClient> sacp_client) : 
-        NodeDevice<MsgMotorState>(type), sacp_client_(sacp_client) 
+        NodeDevice<MsgMotorState>(type, (uint8_t)robot::n1::DeviceIndex::MotorRight, (uint8_t)robot::n1::DeviceIndex::MotorSteering), sacp_client_(sacp_client) 
     {
         // 初始化运动控制订阅器
         motion_control_subscriber_ = this->create_subscription<MsgMotionControl>(

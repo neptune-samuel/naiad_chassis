@@ -34,7 +34,7 @@ class NodeLedLight: public NodeDevice<MsgLedLightState>
 {
 public:
     NodeLedLight(std::string const &type, std::shared_ptr<sacp::SacpClient> sacp_client) : 
-        NodeDevice<MsgLedLightState>(type), sacp_client_(sacp_client) 
+        NodeDevice<MsgLedLightState>(type, (uint8_t)robot::n1::DeviceIndex::LedLightA, (uint8_t)robot::n1::DeviceIndex::LedLightD), sacp_client_(sacp_client) 
     {
         // 创建一个服务
         service_set_brightness_ = this->create_service<SrvLedLightSetBrightness>(

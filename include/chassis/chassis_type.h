@@ -14,6 +14,7 @@
 #include "naiad_interfaces/msg/ledlight_state.hpp"
 #include "naiad_interfaces/msg/lifter_state.hpp"
 
+#include "naiad_interfaces/srv/device_get_info.hpp"
 #include "naiad_interfaces/srv/ledlight_set_brightness.hpp"
 #include "naiad_interfaces/srv/pushbox_control.hpp"
 #include "naiad_interfaces/srv/pushbox_set_offline_config.hpp"
@@ -52,12 +53,15 @@ using MsgLedLightState = naiad_interfaces::msg::LedlightState;
 using MsgLifterState = naiad_interfaces::msg::LifterState;
 
 /// 外设服务
+using SrvDeviceGetInfo = naiad_interfaces::srv::DeviceGetInfo;
 using SrvPushBoxControl = naiad_interfaces::srv::PushboxControl;
 using SrvPushBoxGetOfflineConfig = naiad_interfaces::srv::PushboxGetOfflineConfig;
 using SrvPushBoxSetOfflineConfig = naiad_interfaces::srv::PushboxSetOfflineConfig;
 using SrvLedLightSetBrightness = naiad_interfaces::srv::LedlightSetBrightness;
 using SrvLifterSetPosition = naiad_interfaces::srv::LifterSetPosition;
 
+using SrvDeviceGetInfoRequest = naiad_interfaces::srv::DeviceGetInfo_Request;
+using SrvDeviceGetInfoResponse = naiad_interfaces::srv::DeviceGetInfo_Response;
 using SrvPushBoxControlRequest = naiad_interfaces::srv::PushboxControl_Request;
 using SrvPushBoxControlResponse = naiad_interfaces::srv::PushboxControl_Response;
 using SrvPushBoxGetOfflineConfigRequest = naiad_interfaces::srv::PushboxGetOfflineConfig_Request;
