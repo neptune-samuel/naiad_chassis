@@ -105,7 +105,12 @@ bool parse_attributes_range(sacp::AttributeArray const &attrs,
     // 没有接收到的
     if (id < first_id)
     {
-        slog::warning("unabled to find correct attributes");
+        std::string s = "";
+        for (auto & a : attrs){
+            s += a.brief();
+        }
+
+        slog::warning("unabled to find correct attributes in ({}) in range(%d~%d)", s, first_id, second_id);
         return false;
     }
 

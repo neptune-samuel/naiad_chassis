@@ -829,14 +829,16 @@
 #define ATTR_MOTION_LEFT_MOTOR_ODOMETER(_val) 		sacp::Attribute(1027, (float)_val) 		/* 1027 ATTR_MOTION_LEFT_MOTOR_ODOMETER          float  RD */
 #define ATTR_MOTION_FRONT_MOTOR_ODOMETER_ID 		1028
 #define ATTR_MOTION_FRONT_MOTOR_ODOMETER(_val) 		sacp::Attribute(1028, (float)_val) 		/* 1028 ATTR_MOTION_FRONT_MOTOR_ODOMETER         float  RD */
+#define ATTR_MOTION_CONTROL_PERIOD_ID 		1029
+#define ATTR_MOTION_CONTROL_PERIOD(_val) 		sacp::Attribute(1029, (uint32_t)_val) 		/* 1029 ATTR_MOTION_CONTROL_PERIOD               uint32_t RD */
 #define ATTR_MOTION_SET_VELOCITY_ID 		1050
 #define ATTR_MOTION_SET_VELOCITY(_val) 		sacp::Attribute(1050, (float)_val) 		/* 1050 ATTR_MOTION_SET_VELOCITY                 float  RW */
 #define ATTR_MOTION_SET_STEERING_ANGLE_ID 		1051
 #define ATTR_MOTION_SET_STEERING_ANGLE(_val) 		sacp::Attribute(1051, (float)_val) 		/* 1051 ATTR_MOTION_SET_STEERING_ANGLE           float  RW */
 
-/* Total: 31 */
+/* Total: 32 */
 
 
-// 总共 386 Attributes 
+// 总共 387 Attributes 
 
 #endif // __ROBOT_N1_ATTRIBUTES_H__ 

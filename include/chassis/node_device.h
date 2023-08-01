@@ -49,6 +49,9 @@ public:
 
         info_publisher_ = this->create_publisher<MsgDeviceInfo>(type + "/info", 10);
         state_publisher_ = this->create_publisher<DeviceStateType>(type + "/state", 10);
+
+        // 创建一个定时器
+        timer_ = this->create_wall_timer(std::chrono::milliseconds(1000), std::bind(&NodeDevice::timer_handle, this));
     }
 
     ~NodeDevice()
@@ -126,7 +129,6 @@ protected:
                     case DeviceState::Offline:
                         slog::error("{}-{} link down", type_, index);
                     break;
-
                     case DeviceState::Online:
                         slog::info("{}-{} link up, model:{} name:{}", type_, index, it->device_brief.model, it->device_brief.name);
                     break;
@@ -144,7 +146,7 @@ protected:
         }
         else
         {
-            slog::warning("receive admin-status before created(index={})", index);
+            // slog::warning("receive admin-status before created(index={})", index);
             update_device_info_async(index);
         }
     }
@@ -172,7 +174,7 @@ protected:
         }
         else
         {
-            slog::warning("receive device-state before created(index={})", index);
+            // slog::warning("{}-{} receive state report before created", type_, index);
             update_device_info_async(index);
         }
     }
@@ -190,6 +192,20 @@ protected:
 
         // 将需要更新的地址加入进来
         care_device_index_.push_back(index);
+    }
+
+    /**
+     * @brief 定时器处理函数
+     * 
+     * @note TODO： 必须是主控已连接的情况才做这个事情 
+     */
+    void timer_handle(void)
+    {
+        // 将需要更新的地址加入进来
+        if (care_device_index_.empty())
+        {
+            return;
+        }
 
         // 如果异步正在执行，不再启动
         if (!async_running_){
@@ -197,7 +213,7 @@ protected:
 
             async_result_ = std::async(std::launch::async, [&]{                
                 int num = care_device_index_.size();
-                //slog::debug("start fetching {} info, num={}", this->type_, num);
+                //slog::info("start fetching {} info, num={}", this->type_, num);
                 int count = 0;
 
                 for (int i = 0; i < num; i ++){
@@ -210,7 +226,7 @@ protected:
                     }
                 }
 
-                slog::debug("{} {} info updated", count, this->type_);
+                //slog::info("{} {} info updated", count, this->type_);
 
                 // 清空队列 
                 decltype(care_device_index_)().swap(care_device_index_);
@@ -219,6 +235,7 @@ protected:
             });
         }
     }
+
 protected:
     // 类型名称
     std::string type_;
@@ -227,7 +244,7 @@ protected:
     //std::shared_ptr<slog::Logger> log_;
 
     // 创建一个慢速定时器
-    //rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::TimerBase::SharedPtr timer_;
 
     // 互斥信号量
     //std::mutex devices_mutex_; 

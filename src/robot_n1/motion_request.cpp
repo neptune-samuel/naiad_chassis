@@ -74,7 +74,7 @@ bool parse_motor_info2(sacp::AttributeArray const &attrs,
     size_t offset = 0;
     size_t failed = 0;
 
-    if (!parse_attributes_range(attrs, ATTR_MOTOR_RIGHT_MODEL_ID, ATTR_MOTOR_LEFT_MODEL_ID, offset, index))
+    if (!parse_attributes_range(attrs, ATTR_MOTOR_RIGHT_ADDRESS_ID, ATTR_MOTOR_LEFT_ADDRESS_ID, offset, index))
     {
         return false;
     }   
@@ -110,7 +110,7 @@ bool parse_motor_admin_status(sacp::AttributeArray const &attrs,
     size_t offset = 0;
     size_t failed = 0;
 
-    if (!parse_attributes_range(attrs, ATTR_MOTOR_RIGHT_MODEL_ID, ATTR_MOTOR_LEFT_MODEL_ID, offset, index))
+    if (!parse_attributes_range(attrs, ATTR_MOTOR_RIGHT_LINK_STATUS_ID, ATTR_MOTOR_LEFT_LINK_STATUS_ID, offset, index))
     {
         return false;
     }   
@@ -154,7 +154,7 @@ bool parse_motor_state(sacp::AttributeArray const &attrs,
     size_t offset = 0;
     size_t failed = 0;
 
-    if (!parse_attributes_range(attrs, ATTR_MOTOR_RIGHT_MODEL_ID, ATTR_MOTOR_LEFT_MODEL_ID, offset, index))
+    if (!parse_attributes_range(attrs, ATTR_MOTOR_RIGHT_CURRENT_ID, ATTR_MOTOR_LEFT_CURRENT_ID, offset, index))
     {
         return false;
     }   
@@ -190,7 +190,7 @@ std::unique_ptr<sacp::SacpClient::OperationResult> read_motor_info(
         return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::InternalError);    
     }
 
-    if (!valid_ledlight_index(index))
+    if (!valid_motor_index(index))
     {
         return std::make_unique<sacp::SacpClient::OperationResult>(sacp::SacpClient::OperationStatus::NoSuchObject);
     }
