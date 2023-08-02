@@ -27,6 +27,16 @@ namespace sacp {
 class Stream
 {
 public:
+
+    struct Statistics
+    {
+        uint64_t rx_bytes;
+        uint32_t rx_frames;
+        uint32_t crc_errors;
+        uint32_t header_errors;
+        uint32_t parse_errors;
+    };    
+
     Stream(std::string const &name, int frame_fifo_num, int timeout_ms = 10); 
     explicit Stream(std::string const & name) :  Stream(name, 0, 0) { }
     
@@ -60,6 +70,13 @@ public:
      * @return Frame 
      */
     std::unique_ptr<Frame> receive();
+
+    /**
+     * @brief Get the statistics 
+     * 
+     * @param stats 
+     */
+    Statistics get_statistics();
 private:
     /// 名称
     std::string name_;
@@ -83,6 +100,9 @@ private:
     std::unique_ptr<uint8_t[]> buffer_;
     unsigned int buffer_size_ = 0;
     unsigned int parsed_size_ = 0;
+
+    struct Statistics statistics_;   
+    std::mutex statistics_mutex_;
 
     /// 解析一次帧
     void parse_frame();

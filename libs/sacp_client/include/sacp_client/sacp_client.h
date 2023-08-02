@@ -85,6 +85,24 @@ namespace sacp
 /// 指定为导出函数
 #define _EXPORT_API_  
 
+
+struct Statistics
+{
+    uint64_t rx_bytes;
+    uint64_t tx_bytes;
+
+    uint32_t tx_rate; // bytes per second
+    uint32_t rx_rate; // Bytes per second
+
+    uint32_t rx_frames;
+    uint32_t tx_frames; // 发送的总帧数量
+    uint32_t crc_error_frames; 
+    uint32_t tx_queue_frames; // 发送提交的请求
+    uint32_t tx_failed_frames; // 发送失败
+};
+
+
+
 class SacpClient
 {
 
@@ -179,6 +197,18 @@ public:
     /// @brief 最大传输数量 
     static const int MaxTransactionNum;
 
+    /// 统计信息常量属性
+    static const uint16_t ATTR_SACP_RX_BYTES;  // u64
+    static const uint16_t ATTR_SACP_TX_BYTES;  // u64
+    static const uint16_t ATTR_SACP_RX_RATE;   // u32
+    static const uint16_t ATTR_SACP_TX_RATE;   // u32
+    static const uint16_t ATTR_SACP_RX_FRAMES; // u32
+    static const uint16_t ATTR_SACP_TX_FRAMES; // u32
+    static const uint16_t ATTR_SACP_CRC_ERRORS; // u32
+    static const uint16_t ATTR_SACP_TX_QUEUED; // u32
+    static const uint16_t ATTR_SACP_TX_FAILED; // u32
+
+
     SacpClient(
         /// 串口
         std::string const & serial_device, 
@@ -196,6 +226,7 @@ public:
         report_handle_(report_handle)
     {
         name_ = "sacp-" + serial_.name();
+        statistics_ = { };
     }
 
     ~SacpClient() 
@@ -387,10 +418,14 @@ private:
     std::condition_variable transaction_sync_;    
     std::queue<std::unique_ptr<Transaction>> pending_transactions_;
     std::vector<std::unique_ptr<Transaction>> completed_transactions_;
+    
 
     ReportHandle report_handle_;
     /// @brief  VOFA的数据可视化
     sacp::VofaDebuger vofa_debuger_;
+    /// @brief 统计信息
+    sacp::Statistics statistics_;
+    naiad::system::SysTick statistics_print_tick_;
 
     /// @brief 返回请求ID
     uint32_t get_request_id()

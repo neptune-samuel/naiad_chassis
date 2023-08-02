@@ -159,6 +159,12 @@ std::size_t Stream::input(uint8_t const *data, int size)
         stream_push(data[i]);
     }
 
+    {
+        std::lock_guard<std::mutex> lock(statistics_mutex_);  
+        statistics_.rx_bytes += size; 
+    }
+    
+
     //slog::trace("-> queue {} bytes, stream size = {}", size, stream_size());
 
     // 解析帧数据
@@ -228,6 +234,9 @@ void Stream::parse_frame()
                 stream_push_front(buffer_[i]);
             }
 
+            std::lock_guard<std::mutex> lock(statistics_mutex_);  
+            statistics_.header_errors ++;
+
             parsed_size_ = 0;
             return ;
         }
@@ -276,6 +285,9 @@ void Stream::parse_frame()
         }
 
         parsed_size_ = 0;
+        
+        std::lock_guard<std::mutex> lock(statistics_mutex_);  
+        statistics_.crc_errors ++;
         return ;
     }
 
@@ -288,6 +300,9 @@ void Stream::parse_frame()
         if (fi == nullptr)
         {
             slog::error("{}: frame parse failed", name_);
+
+            std::lock_guard<std::mutex> lock(statistics_mutex_);  
+            statistics_.parse_errors ++;
             return ;
         }
 
@@ -323,6 +338,9 @@ void Stream::parse_frame()
         }
 
         free(fi);
+
+        std::lock_guard<std::mutex> lock(statistics_mutex_);  
+        statistics_.rx_frames ++;
     }
 
 }
@@ -350,6 +368,18 @@ std::unique_ptr<Frame> Stream::receive()
     frames_.pop();
     
     return f;
+}
+
+
+/**
+ * @brief Get the statistics 
+ * 
+ * @param stats 
+ */
+Stream::Statistics Stream::get_statistics()
+{
+    std::lock_guard<std::mutex> lock(statistics_mutex_);    
+    return statistics_;
 }
 
 

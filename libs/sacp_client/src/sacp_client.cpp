@@ -29,6 +29,19 @@ namespace sacp
 
 const int SacpClient::MaxTransactionNum = 64;
 
+/// 统计信息常量属性
+/// 在mcu_framework/component/sacp/attribute/common_attributes.h中定义
+const uint16_t SacpClient::ATTR_SACP_RX_BYTES = 70;  // u64
+const uint16_t SacpClient::ATTR_SACP_TX_BYTES = 71;  // u64
+const uint16_t SacpClient::ATTR_SACP_RX_RATE = 72;   // u32
+const uint16_t SacpClient::ATTR_SACP_TX_RATE = 73;   // u32
+const uint16_t SacpClient::ATTR_SACP_RX_FRAMES = 74; // u32
+const uint16_t SacpClient::ATTR_SACP_TX_FRAMES = 75; // u32
+const uint16_t SacpClient::ATTR_SACP_CRC_ERRORS = 76; // u32
+const uint16_t SacpClient::ATTR_SACP_TX_QUEUED = 77; // u32
+const uint16_t SacpClient::ATTR_SACP_TX_FAILED = 78; // u32
+
+
 /// 启动
 bool SacpClient::start()
 {
@@ -81,8 +94,7 @@ void SacpClient::stop()
 void SacpClient::dump()
 {
     // 显示串口的信息
-    naiad::driver::SerialStatistics stats = { };
-    serial_.get_statistics(stats);
+    naiad::driver::SerialStatistics stats = serial_.get_statistics();
 
     slog::info("- serial statistics -");
     slog::info("-  fifo peak/size : {}/{}", stats.fifo_peak_size, stats.fifo_size);
@@ -285,6 +297,8 @@ SacpClient::OperationStatus SacpClient::submit_request(
 
         pending_transactions_.emplace(std::move(trans));
 
+        statistics_.tx_queue_frames ++;
+
         // 告诉发送子线程有任务来了
         transaction_sync_.notify_one();
     }
@@ -419,6 +433,8 @@ void SacpClient::transaction_task()
                     }
                     // 切换到下一个状态
                     head->state = Transaction::State::WaitingAck;
+
+                    statistics_.tx_frames ++;
                 }
             }
             break;
@@ -463,7 +479,10 @@ void SacpClient::transaction_task()
                     Transaction::StateName(head->state), OperationStatusName(head->status));  
 
                 // 操作成功，设置结果
-                head->promise.set_value(OperationResult(head->status));          
+                head->promise.set_value(OperationResult(head->status));
+
+                // 发送失败了
+                statistics_.tx_failed_frames ++;
             }        
 
             /// 转移到完成列表中  
@@ -515,9 +534,9 @@ void SacpClient::main_task()
         int size = serial_.async_read(buf, sizeof(buf));    
         if (size > 0){
             // 如果调试TCP端口可用，将数据发送给TCP端口
-            if (debug_tcp_.connections_num() > 0){            
-                debug_tcp_.send(debug_tcp_.AllClients, buf, size);
-            }
+            // if (debug_tcp_.connections_num() > 0){            
+            //     debug_tcp_.send(debug_tcp_.AllClients, buf, size);
+            // }
             // 放进流解析器中
             serial_stream_.input(buf, size);
         }
@@ -546,6 +565,16 @@ void SacpClient::main_task()
                 } else {
                     slog::warning("receive unknown frame type: {}", static_cast<uint8_t>(frame->type()));
                 }
+
+                // 发给TCP调试端口
+                if (debug_tcp_.connections_num() > 0){  
+                    uint8_t buffer[sacp::Frame::MaxFrameSize >> 1] = { };
+                    std::size_t frame_size = frame->make_raw_frame(buffer, sizeof(buffer));
+                    if (frame_size > 0)
+                    {
+                        debug_tcp_.send(debug_tcp_.AllClients, buffer, frame_size);
+                    }
+                }                
             }
         }
     });
@@ -619,36 +648,71 @@ void SacpClient::main_task()
     // 开一个子线程，处理请求事务，如读请求，写请求
     auto sub_thread = std::thread(&SacpClient::transaction_task, this);
 
-    // 使用一个定时器，做一些状态管理
-    // uv::Timer main_timer;
+    // 使用一个定时器，做统计分析
+    uv::Timer stats_timer;
+    stats_timer.bind(main_loop_, [this](){
+        // 假设时间是准的
+        naiad::driver::SerialStatistics serial_stats = serial_.get_statistics();
+        Stream::Statistics stream_stats = serial_stream_.get_statistics();
 
-    // main_timer.bind(main_loop_, [this](){
-        
-    //     uint32_t request_id = 0;
-    //     // 定时做一些测试
-    //     submit_request("self", sacp::Frame::Priority::PriorityLowest, sacp::Frame::OpCode::Read,
-    //             {
-    //             sacp::Attribute(600, ""),
-    //             sacp::Attribute(601, ""),
-    //             sacp::Attribute(602, (uint16_t)0),
-    //             sacp::Attribute(603, (uint16_t)0),
-    //             sacp::Attribute(604, (uint8_t)0),
-    //             sacp::Attribute(605, ""),
-    //             sacp::Attribute(606, (uint8_t)0),
-    //             sacp::Attribute(607, (uint32_t)0),
-    //             sacp::Attribute(608, (uint32_t)0),
-    //             sacp::Attribute(609, (uint8_t)0),
-    //             sacp::Attribute(610, (uint16_t)0),
-    //         }, request_id);
-    // });
+        // 更新速率值
+        statistics_.rx_rate = serial_stats.rx_bytes - statistics_.rx_bytes;
+        statistics_.tx_rate = serial_stats.tx_bytes - statistics_.tx_bytes;
+        statistics_.rx_bytes = serial_stats.rx_bytes;
+        statistics_.tx_bytes = serial_stats.tx_bytes;
 
-    // main_timer.start(1000);
+        statistics_.rx_frames = stream_stats.rx_frames;
+        statistics_.crc_error_frames = stream_stats.crc_errors;
+
+
+        // 如果TCP连接有效，创建数据帧并发送
+        if (debug_tcp_.connections_num() > 0){
+            //封装属性
+            std::vector<Attribute> attrs;
+            attrs.emplace_back(100, (uint8_t)255);
+            attrs.emplace_back(ATTR_SACP_RX_BYTES, statistics_.rx_bytes);
+            attrs.emplace_back(ATTR_SACP_TX_BYTES, statistics_.tx_bytes);
+            attrs.emplace_back(ATTR_SACP_RX_RATE, statistics_.rx_rate);
+            attrs.emplace_back(ATTR_SACP_TX_RATE, statistics_.tx_rate);
+            attrs.emplace_back(ATTR_SACP_RX_FRAMES, statistics_.rx_frames);
+            attrs.emplace_back(ATTR_SACP_TX_FRAMES, statistics_.tx_frames);
+            attrs.emplace_back(ATTR_SACP_CRC_ERRORS, statistics_.crc_error_frames);
+            attrs.emplace_back(ATTR_SACP_TX_FAILED, statistics_.tx_failed_frames);
+            attrs.emplace_back(ATTR_SACP_TX_QUEUED, statistics_.tx_queue_frames);
+
+            auto frame = std::make_unique<Frame>("sacp", Frame::Priority::PriorityLowest, 0, Frame::OpCode::Report, attrs);                        
+            uint8_t buffer[sacp::Frame::MaxFrameSize >> 1] = { };
+            std::size_t frame_size = frame->make_raw_frame(buffer, sizeof(buffer));
+            if (frame_size > 0)
+            {
+                debug_tcp_.send(debug_tcp_.AllClients, buffer, frame_size);
+            }
+        }  
+
+        // 定时打印统计信息
+        if (statistics_print_tick_.is_after(60*1000)){
+            // 更新时间
+            statistics_print_tick_ = naiad::system::uptime();
+
+            double rx_ok = (statistics_.rx_frames * 100.0) / (statistics_.rx_frames + statistics_.crc_error_frames);
+
+            // 打印统计信息
+            slog::info("Statistics: [rx-byte]: {}/{} [tx-byte]: {}/{}", statistics_.rx_bytes, statistics_.rx_rate, statistics_.tx_bytes, statistics_.tx_bytes);
+            slog::info("Statistics: [rx-frame]: {}/{} %6.3f", statistics_.rx_frames, statistics_.tx_frames, statistics_.crc_error_frames, rx_ok);
+            slog::info("Statistics: [tx-frame]: {}/{} queued:{}", statistics_.tx_frames, statistics_.tx_failed_frames, statistics_.tx_queue_frames);
+        }
+    });
+
+    stats_timer.start(1000);
 
     // 进入事件等待
     main_loop_.spin();
 
     // 等待子进程结束 
     sub_thread.join();
+
+    // 停止统计信息定时器
+    stats_timer.stop();
 
     // 关闭TCP端口
     debug_tcp_.stop();
@@ -678,131 +742,6 @@ void SacpClient::destroy_vofa_monitor_service(int port)
 }
 
 
-/**
- * @brief 主线程
- * 
- * @note  
- *   主要功能
- *   串口发送函数，使用帧队列，接收ROS和TCP发送过来了SACP数据帧
- *   串口接收函数，将原始数据 发往TCP端口 
- *   串口接收函数，解析SACP数据帧，打印出来   
- * 
- */
-// void SacpClient::main_task1()
-// {
-//     auto & serial = serial_;
-//     auto & tcp = debug_tcp_;
-//     auto & stream = serial_stream_;
-//     auto & tcp_stream = debug_tcp_stream_;
-
-//     main_running_ = true;
-
-//     // 开一个子线程，处理串口请求
-//     auto sub_thread = std::thread(SacpClient::transaction_task, this);
-
-
-//     naiad::system::SysTick test_tick;
-
-//     while(main_running_)
-//     {
-//         auto now = std::chrono::steady_clock::now();
-
-//         // 从串口接收到数据
-//         uint8_t buf[256];
-
-//         int size = serial.async_read(buf, sizeof(buf));    
-//         if (size > 0)
-//         {
-//             // 如果调试TCP端口可用，将数据发送给TCP端口
-//             if (tcp.connections_num() > 0)
-//             {            
-//                 tcp.send(tcp.AllClients, buf, size);
-//             }
-
-//             // 放进流解析器中
-//             stream.input(buf, size);
-//         }
-
-//         // 如果 TCP调试服务接收到数据，放入解析器
-//         if (tcp.received_frames_num() > 0)
-//         {
-//             auto tcp_frame = tcp.receive();
-//             if (!tcp_frame.is_empty())
-//             {
-//                 // 放入流解析器中
-//                 tcp_stream.input(tcp_frame.data_pointer(), tcp_frame.size());
-//             }
-//         }
-
-//         // 是否有解析到数据帧
-//         while (stream.frames_num() > 0)
-//         {
-//             auto frame = stream.receive();
-//             if (!frame->is_empty())
-//             {
-//                 slog::debug("UART-RX: {}", frame->info());
-
-//                 // 如果是读写响应，提交给传输事务处理
-//                 if (frame->type() == sacp::Frame::OpCode::Report)
-//                 {
-//                     // TODO: 收到Report
-//                 }
-//                 else if ((frame->type() == sacp::Frame::OpCode::ReadAck) || (frame->type() == sacp::Frame::OpCode::WriteAck))
-//                 {
-//                     transaction_receive(frame);
-//                 }
-//                 else if (frame->type() == sacp::Frame::OpCode::Read || frame->type() == sacp::Frame::OpCode::Write) 
-//                 {
-//                     slog::warning("receive Read or Write frame in sacp-client, frame type: {}", static_cast<uint8_t>(frame->type()));
-//                 }
-//                 else 
-//                 {
-//                     slog::warning("receive unknown frame type: {}", static_cast<uint8_t>(frame->type()));
-//                 }
-//             }
-//         }
-
-//         // 处理TCP的数据帧
-//         while (tcp_stream.frames_num() > 0)
-//         {   
-//             auto frame = tcp_stream.receive();
-//             if (!frame->is_empty())
-//             {
-//                 slog::debug("TCP-RX: {}", frame->info());
-//             }
-//         }
-
-
-//         if (test_tick.is_after(1000))
-//         {
-//             slog::info("send request");
-//             test_tick = naiad::system::uptime();
-
-//             submit_request("self", sacp::Frame::Priority::PriorityLowest, sacp::Frame::OpCode::Read,
-//                  {
-//                     sacp::Attribute(600, ""),
-//                     sacp::Attribute(601, ""),
-//                     sacp::Attribute(602, (uint16_t)0),
-//                     sacp::Attribute(603, (uint16_t)0),
-//                     sacp::Attribute(604, (uint8_t)0),
-//                     sacp::Attribute(605, ""),
-//                     sacp::Attribute(606, (uint8_t)0),
-//                     sacp::Attribute(607, (uint32_t)0),
-//                     sacp::Attribute(608, (uint32_t)0),
-//                     sacp::Attribute(609, (uint8_t)0),
-//                     sacp::Attribute(610, (uint16_t)0),
-//                 });
-//         }
-
-
-//         //transaction_process();
-
-//         //std::this_thread::sleep_until(now + std::chrono::milliseconds(1));        
-//     }
-
-//     /// 回收子线程
-//     sub_thread.join();
-// }
 
 } // sacp 
 
