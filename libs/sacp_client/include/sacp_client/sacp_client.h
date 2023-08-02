@@ -304,6 +304,17 @@ public:
     /// @param port 
     void destroy_vofa_monitor_service(int port);
 
+    /// @brief 接收一个外部的report数据帧
+    /// @param ptr 
+    void external_report_frame_push(std::unique_ptr<sacp::Frame> & ptr);
+
+    /// @brief  返回TCP调试服务的连接数量 
+    /// @return 
+    int debug_tcp_connection_num()
+    {
+        return debug_tcp_.connections_num();
+    }
+
 private:
 
     // 定义一次传输任务
@@ -419,7 +430,12 @@ private:
     std::queue<std::unique_ptr<Transaction>> pending_transactions_;
     std::vector<std::unique_ptr<Transaction>> completed_transactions_;
     
+    /// 帧，用来处理外部的数据帧
+    std::queue<std::unique_ptr<Frame>> external_report_frames_;
+    /// 队列锁
+    std::mutex external_report_frames_mutex_;
 
+    /// @brief 上报报文处理
     ReportHandle report_handle_;
     /// @brief  VOFA的数据可视化
     sacp::VofaDebuger vofa_debuger_;

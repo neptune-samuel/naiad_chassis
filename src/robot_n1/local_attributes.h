@@ -41,6 +41,24 @@
 #define ATTR_PRODUCT_SN(_val) 		sacp::Attribute(16, _val) 		/* 16   ATTR_PRODUCT_SN                          octet  RD */
 #define ATTR_SYSTEM_CONTROL_ID 		20
 #define ATTR_SYSTEM_CONTROL(_val) 		sacp::Attribute(20, (uint8_t)_val) 		/* 20   ATTR_SYSTEM_CONTROL                      uint8_t RW */
+#define ATTR_SACP_RX_BYTES_ID 		70
+#define ATTR_SACP_RX_BYTES(_val) 		sacp::Attribute(70, (uint64_t)_val) 		/* 70   ATTR_SACP_RX_BYTES                       uint64_t RD */
+#define ATTR_SACP_TX_BYTES_ID 		71
+#define ATTR_SACP_TX_BYTES(_val) 		sacp::Attribute(71, (uint64_t)_val) 		/* 71   ATTR_SACP_TX_BYTES                       uint64_t RD */
+#define ATTR_SACP_RX_RATE_ID 		72
+#define ATTR_SACP_RX_RATE(_val) 		sacp::Attribute(72, (uint32_t)_val) 		/* 72   ATTR_SACP_RX_RATE                        uint32_t RD */
+#define ATTR_SACP_TX_RATE_ID 		73
+#define ATTR_SACP_TX_RATE(_val) 		sacp::Attribute(73, (uint32_t)_val) 		/* 73   ATTR_SACP_TX_RATE                        uint32_t RD */
+#define ATTR_SACP_RX_FRAMES_ID 		74
+#define ATTR_SACP_RX_FRAMES(_val) 		sacp::Attribute(74, (uint32_t)_val) 		/* 74   ATTR_SACP_RX_FRAMES                      uint32_t RD */
+#define ATTR_SACP_TX_FRAMES_ID 		75
+#define ATTR_SACP_TX_FRAMES(_val) 		sacp::Attribute(75, (uint32_t)_val) 		/* 75   ATTR_SACP_TX_FRAMES                      uint32_t RD */
+#define ATTR_SACP_CRC_ERRORS_ID 		76
+#define ATTR_SACP_CRC_ERRORS(_val) 		sacp::Attribute(76, (uint32_t)_val) 		/* 76   ATTR_SACP_CRC_ERRORS                     uint32_t RD */
+#define ATTR_SACP_TX_QUEUED_ID 		77
+#define ATTR_SACP_TX_QUEUED(_val) 		sacp::Attribute(77, (uint32_t)_val) 		/* 77   ATTR_SACP_TX_QUEUED                      uint32_t RD */
+#define ATTR_SACP_TX_FAILED_ID 		78
+#define ATTR_SACP_TX_FAILED(_val) 		sacp::Attribute(78, (uint32_t)_val) 		/* 78   ATTR_SACP_TX_FAILED                      uint32_t RD */
 #define ATTR_BOARD_STATE_ID 		120
 #define ATTR_BOARD_STATE(_val) 		sacp::Attribute(120, (uint16_t)_val) 		/* 120  ATTR_BOARD_STATE                         uint16_t RD */
 #define ATTR_BOARD_TEMPERATURE_ID 		121
@@ -56,7 +74,7 @@
 #define ATTR_DEPTH_SENSOR_TEMPERATURE_ID 		126
 #define ATTR_DEPTH_SENSOR_TEMPERATURE(_val) 		sacp::Attribute(126, (float)_val) 		/* 126  ATTR_DEPTH_SENSOR_TEMPERATURE            float  RD */
 
-/* Total: 21 */
+/* Total: 30 */
 
 
 /* 属性组 - fogbox */
@@ -839,6 +857,52 @@
 /* Total: 32 */
 
 
-// 总共 387 Attributes 
+/* 属性组 - fog */
+
+#define ATTR_FOG_GYROSCOPE_X_ID 		1100
+#define ATTR_FOG_GYROSCOPE_X(_val) 		sacp::Attribute(1100, (float)_val) 		/* 1100 ATTR_FOG_GYROSCOPE_X                     float  RD */
+#define ATTR_FOG_GYROSCOPE_Y_ID 		1101
+#define ATTR_FOG_GYROSCOPE_Y(_val) 		sacp::Attribute(1101, (float)_val) 		/* 1101 ATTR_FOG_GYROSCOPE_Y                     float  RD */
+#define ATTR_FOG_GYROSCOPE_Z_ID 		1102
+#define ATTR_FOG_GYROSCOPE_Z(_val) 		sacp::Attribute(1102, (float)_val) 		/* 1102 ATTR_FOG_GYROSCOPE_Z                     float  RD */
+#define ATTR_FOG_ACCELEROMETER_X_ID 		1103
+#define ATTR_FOG_ACCELEROMETER_X(_val) 		sacp::Attribute(1103, (float)_val) 		/* 1103 ATTR_FOG_ACCELEROMETER_X                 float  RD */
+#define ATTR_FOG_ACCELEROMETER_Y_ID 		1104
+#define ATTR_FOG_ACCELEROMETER_Y(_val) 		sacp::Attribute(1104, (float)_val) 		/* 1104 ATTR_FOG_ACCELEROMETER_Y                 float  RD */
+#define ATTR_FOG_ACCELEROMETER_Z_ID 		1105
+#define ATTR_FOG_ACCELEROMETER_Z(_val) 		sacp::Attribute(1105, (float)_val) 		/* 1105 ATTR_FOG_ACCELEROMETER_Z                 float  RD */
+#define ATTR_FOG_EULAR_ROLL_ID 		1106
+#define ATTR_FOG_EULAR_ROLL(_val) 		sacp::Attribute(1106, (float)_val) 		/* 1106 ATTR_FOG_EULAR_ROLL                      float  RD */
+#define ATTR_FOG_EULAR_YAW_ID 		1107
+#define ATTR_FOG_EULAR_YAW(_val) 		sacp::Attribute(1107, (float)_val) 		/* 1107 ATTR_FOG_EULAR_YAW                       float  RD */
+#define ATTR_FOG_EULAR_PITCH_ID 		1108
+#define ATTR_FOG_EULAR_PITCH(_val) 		sacp::Attribute(1108, (float)_val) 		/* 1108 ATTR_FOG_EULAR_PITCH                     float  RD */
+#define ATTR_FOG_QUATERNION_A_ID 		1109
+#define ATTR_FOG_QUATERNION_A(_val) 		sacp::Attribute(1109, (float)_val) 		/* 1109 ATTR_FOG_QUATERNION_A                    float  RD */
+#define ATTR_FOG_QUATERNION_B_ID 		1110
+#define ATTR_FOG_QUATERNION_B(_val) 		sacp::Attribute(1110, (float)_val) 		/* 1110 ATTR_FOG_QUATERNION_B                    float  RD */
+#define ATTR_FOG_QUATERNION_C_ID 		1111
+#define ATTR_FOG_QUATERNION_C(_val) 		sacp::Attribute(1111, (float)_val) 		/* 1111 ATTR_FOG_QUATERNION_C                    float  RD */
+#define ATTR_FOG_QUATERNION_D_ID 		1112
+#define ATTR_FOG_QUATERNION_D(_val) 		sacp::Attribute(1112, (float)_val) 		/* 1112 ATTR_FOG_QUATERNION_D                    float  RD */
+#define ATTR_FOG_ACTIVED_ID 		1113
+#define ATTR_FOG_ACTIVED(_val) 		sacp::Attribute(1113, (bool)_val) 		/* 1113 ATTR_FOG_ACTIVED                         bool   RD */
+#define ATTR_FOG_VERSION_ID 		1114
+#define ATTR_FOG_VERSION(_val) 		sacp::Attribute(1114, _val) 		/* 1114 ATTR_FOG_VERSION                         octet  RD */
+#define ATTR_FOG_SERIAL_NUMBER_ID 		1115
+#define ATTR_FOG_SERIAL_NUMBER(_val) 		sacp::Attribute(1115, _val) 		/* 1115 ATTR_FOG_SERIAL_NUMBER                   octet  RD */
+#define ATTR_FOG_WORK_MODE_ID 		1116
+#define ATTR_FOG_WORK_MODE(_val) 		sacp::Attribute(1116, (uint32_t)_val) 		/* 1116 ATTR_FOG_WORK_MODE                       uint32_t RD */
+#define ATTR_FOG_SELF_CHECKING_ID 		1117
+#define ATTR_FOG_SELF_CHECKING(_val) 		sacp::Attribute(1117, (uint32_t)_val) 		/* 1117 ATTR_FOG_SELF_CHECKING                   uint32_t RD */
+#define ATTR_FOG_TMPERATURE_ID 		1118
+#define ATTR_FOG_TMPERATURE(_val) 		sacp::Attribute(1118, (float)_val) 		/* 1118 ATTR_FOG_TMPERATURE                      float  RD */
+#define ATTR_FOG_MANAUAL_CALIBRATION_ID 		1119
+#define ATTR_FOG_MANAUAL_CALIBRATION(_val) 		sacp::Attribute(1119, (bool)_val) 		/* 1119 ATTR_FOG_MANAUAL_CALIBRATION             bool   RD */
+
+/* Total: 20 */
+
+
+// 总共 416 Attributes 
 
 #endif // __ROBOT_N1_ATTRIBUTES_H__ 

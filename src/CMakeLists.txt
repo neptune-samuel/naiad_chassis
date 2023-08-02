@@ -13,6 +13,7 @@ set(ROBOT_N1_SRCS
     robot_n1/pumpbox_request.cpp 
     robot_n1/pushbox_request.cpp
     robot_n1/motion_request.cpp
+    robot_n1/fog_report.cpp
     )
 
 add_executable(${CHASSIS_NAME} 

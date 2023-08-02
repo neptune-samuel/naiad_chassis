@@ -18,6 +18,10 @@ enum REPORT_GROUP
     REPORT_GROUP_MOTION_STATE1,
     /// 运控状态
     REPORT_GROUP_MOTION_STATE2,
+    /// 
+    REPORT_GROUP_FOG_DATA,
+    ///
+    REPORT_GROUP_FOG_STATE,
 
     /// 电源盒基址
     _REPORT_POWERBOX_BASE = 20,

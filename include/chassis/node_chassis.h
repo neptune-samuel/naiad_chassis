@@ -52,6 +52,9 @@ public:
     static const std::string SerialOptions;
     static const std::string StdoutLogLevel;
     static const std::string DebugTcpPort;
+    static const std::string DataExportAdd;
+    static const std::string DataExportRemove;
+    static const std::string DebugFogData;
 
 
     // 上报回调函数
@@ -116,6 +119,13 @@ private:
 
     // 控制器信息
     MsgControllerInfo controller_info_;
+
+    // 本地缓存的FOG信息
+    MsgFogData fog_data_;
+    MsgFogState fog_state_;
+    // 订阅FOG数据
+    rclcpp::Subscription<MsgFogData>::SharedPtr fog_data_subscriber_;        
+    rclcpp::Subscription<MsgFogState>::SharedPtr fog_state_subscriber_;       
 
     bool rtc_time_synced = false;
     bool controller_info_synced = false;

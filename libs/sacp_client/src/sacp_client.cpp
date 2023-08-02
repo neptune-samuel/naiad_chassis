@@ -705,11 +705,45 @@ void SacpClient::main_task()
 
     stats_timer.start(1000);
 
+    // 处理外部report报文
+    uv::Timer report_timer;
+    report_timer.bind(main_loop_, [this](){
+        // 看看有没有需要发送的数据
+        // 没有TCP连接，不需要处理数据
+        if (debug_tcp_.connections_num() < 1){
+            return;
+        }
+
+        if (external_report_frames_.empty()){
+            return;
+        }
+
+        std::unique_ptr<Frame> frame = nullptr;
+        {
+            std::lock_guard<std::mutex> lock(external_report_frames_mutex_);
+            frame = std::move(external_report_frames_.front());
+            external_report_frames_.pop();
+        }
+
+        uint8_t buffer[sacp::Frame::MaxFrameSize >> 1] = { };
+        std::size_t frame_size = frame->make_raw_frame(buffer, sizeof(buffer));
+        if (frame_size > 0)
+        {
+            // 发到TCP的所有客户端
+            debug_tcp_.send(debug_tcp_.AllClients, buffer, frame_size);
+        }
+    });  
+
+    report_timer.start(50);  
+
     // 进入事件等待
     main_loop_.spin();
 
     // 等待子进程结束 
     sub_thread.join();
+
+    // 停止上报的定时器
+    report_timer.stop();
 
     // 停止统计信息定时器
     stats_timer.stop();
@@ -741,6 +775,33 @@ void SacpClient::destroy_vofa_monitor_service(int port)
     return vofa_debuger_.destroy(port);
 }
 
+/// @brief 接收一个外部的report数据帧
+/// @param frame
+void SacpClient::external_report_frame_push(std::unique_ptr<sacp::Frame> & frame)
+{
+    // 没有TCP连接，不需要接收数据
+    if (debug_tcp_.connections_num() < 1){
+        return;
+    } 
+
+    // 必须是REPORT才可以
+    if (frame->type() != Frame::OpCode::Report)
+    {
+        slog::warning("input frame is not a report frame");
+        return;
+    }
+
+    // 入栈
+    std::lock_guard<std::mutex> lock(external_report_frames_mutex_);
+    // 是否限制 一下数量 
+    if (external_report_frames_.size() >= 64)
+    {
+        slog::warning("external report frame queue full!!");
+        external_report_frames_.pop();
+    }
+
+    external_report_frames_.emplace(std::move(frame));
+}
 
 
 } // sacp 

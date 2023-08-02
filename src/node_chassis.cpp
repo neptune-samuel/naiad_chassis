@@ -44,6 +44,9 @@ const std::string NodeChassis::SerialPort = "serial_port";
 const std::string NodeChassis::SerialOptions = "serial_options";
 const std::string NodeChassis::StdoutLogLevel = "stdout_log_level";
 const std::string NodeChassis::DebugTcpPort = "debug_tcp_port";
+const std::string NodeChassis::DataExportAdd = "data_export_add";
+const std::string NodeChassis::DataExportRemove = "data_export_remove";
+const std::string NodeChassis::DebugFogData = "debug_fog_data";
 
 
 NodeChassis::NodeChassis(std::string const &name): rclcpp::Node(name) 
@@ -54,6 +57,9 @@ NodeChassis::NodeChassis(std::string const &name): rclcpp::Node(name)
     this->declare_parameter(SerialOptions, "460800");
     this->declare_parameter(StdoutLogLevel, "");
     this->declare_parameter(DebugTcpPort, 9600);
+    this->declare_parameter(DataExportAdd, "");
+    this->declare_parameter(DataExportRemove, "");
+    this->declare_parameter(DebugFogData, 0);
 
     // 启动一个日志
     // 根据参数类型，启动一个日志
@@ -74,6 +80,7 @@ NodeChassis::NodeChassis(std::string const &name): rclcpp::Node(name)
     log_->info("parameter {}={}", SerialOptions,  get_parameter(SerialOptions).as_string());
     log_->info("parameter {}={}", StdoutLogLevel,  get_parameter(StdoutLogLevel).as_string()); 
     log_->info("parameter {}={}", DebugTcpPort,  get_parameter(DebugTcpPort).as_int());
+    log_->info("parameter {}={}", DebugFogData,  get_parameter(DebugFogData).as_int());
 
     // 用这些参数创建一个SACP客户端
     sacp_client_ = std::make_shared<sacp::SacpClient>(get_parameter(SerialPort).as_string(), 
@@ -98,6 +105,35 @@ NodeChassis::NodeChassis(std::string const &name): rclcpp::Node(name)
             resp->status_info = sacp::SacpClient::OperationStatusName(result->status);
         }
     });
+
+    // 订阅FOG的数据，并发送到
+    if (get_parameter(DebugFogData).as_int() > 0)
+    {
+        log_->info("Debug FOG data enabled. start FOG subscribers");   
+
+        // FOG DATA的频率太高，只缓存数据
+        fog_data_subscriber_ = this->create_subscription<MsgFogData>(
+            "fog/data", 10, [this](const MsgFogData::SharedPtr msg){
+                fog_data_ = *msg;
+            });
+
+        fog_state_subscriber_ = this->create_subscription<MsgFogState>(
+            "fog/state", 10, [this](const MsgFogState::SharedPtr msg){
+                fog_state_ = *msg;
+
+                // FOG STATE同时发布数据到调试服务
+                if (sacp_client_->is_running() && (sacp_client_->debug_tcp_connection_num() > 0))
+                {
+                    // 插入到SACP Client中
+                    auto data_frame = robot::n1::make_fog_data_report(fog_data_);
+                    sacp_client_->external_report_frame_push(data_frame);
+
+                    auto state_frame = robot::n1::make_fog_state_report(fog_state_);
+                    sacp_client_->external_report_frame_push(state_frame);
+                }
+            });
+    }
+
 }
 
 

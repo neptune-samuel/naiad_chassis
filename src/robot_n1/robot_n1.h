@@ -13,5 +13,6 @@
 #include "pushbox_request.h"
 #include "depth_sensor_request.h"
 #include "motion_request.h"
+#include "fog_report.h"
 
 #endif // __ROBOT_N1_H__

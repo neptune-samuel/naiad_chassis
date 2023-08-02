@@ -33,6 +33,9 @@
 #include "naiad_interfaces/msg/motion_data.hpp"
 #include "naiad_interfaces/msg/motion_odometer.hpp"
 
+#include "naiad_interfaces/msg/fog_data.hpp"
+#include "naiad_interfaces/msg/fog_state.hpp"
+
 namespace naiad
 {
 namespace chassis
@@ -91,6 +94,9 @@ using MsgMotorState = naiad_interfaces::msg::MotorState;
 using MsgMotionControl = naiad_interfaces::msg::MotionControl;
 using MsgMotionData = naiad_interfaces::msg::MotionData;
 using MsgMotionOdometer = naiad_interfaces::msg::MotionOdometer;
+
+using MsgFogData = naiad_interfaces::msg::FogData;
+using MsgFogState = naiad_interfaces::msg::FogState;
 
 // 16位版本转换为字串
 static inline std::string version16_string(uint16_t version)

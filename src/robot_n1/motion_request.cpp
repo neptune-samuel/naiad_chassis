@@ -1,5 +1,14 @@
 
-
+/**
+ * @file motion_request.cpp
+ * @author Liu Chuansen (samule@neptune-robotics.com)
+ * @brief 运动控制相关操作
+ * @version 0.1
+ * @date 2023-07-21
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #include "local_attributes.h"
 #include "attribute_helper.h"

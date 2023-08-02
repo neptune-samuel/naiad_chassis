@@ -339,7 +339,7 @@ void Stream::parse_frame()
 
         free(fi);
 
-        std::lock_guard<std::mutex> lock(statistics_mutex_);  
+        std::lock_guard<std::mutex> lock1(statistics_mutex_);  
         statistics_.rx_frames ++;
     }
 
