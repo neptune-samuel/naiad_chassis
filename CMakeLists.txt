@@ -87,6 +87,7 @@ add_subdirectory(${LOCAL_LIBS_DIR}/sacp)
 if (WS_ROS)
 # add src 
 add_subdirectory(src)
+add_subdirectory(minirc)
 endif()
 
 # add test
