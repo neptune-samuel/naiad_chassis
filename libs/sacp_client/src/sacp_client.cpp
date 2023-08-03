@@ -417,7 +417,7 @@ void SacpClient::transaction_task()
             {
                 slog::debug("UART-TX: {}", head->req_frame->info());
 
-                uint8_t frame[sacp::Frame::MaxFrameSize >> 1] = { };
+                uint8_t frame[sacp::Frame::MaxFrameSize << 1] = { };
                 std::size_t frame_size = head->req_frame->make_raw_frame(frame, sizeof(frame));
                 /// 处理错误
                 if ((frame_size > sacp::Frame::MaxFrameSize) || (frame_size == 0)){
@@ -548,6 +548,16 @@ void SacpClient::main_task()
             if (!frame->is_empty())
             {
                 slog::debug("UART-RX: {}", frame->info());
+
+                // 发给TCP调试端口
+                if (debug_tcp_.connections_num() > 0){  
+                    uint8_t buffer[sacp::Frame::MaxFrameSize << 1] = { };
+                    std::size_t frame_size = frame->make_raw_frame(buffer, sizeof(buffer));
+                    if (frame_size > 0){
+                        debug_tcp_.send(debug_tcp_.AllClients, buffer, frame_size);
+                    }
+                }  
+
                 // 如果是读写响应，提交给传输事务处理
                 if (frame->type() == sacp::Frame::OpCode::Report){
                     // 调用回调函数处理上报属性
@@ -564,17 +574,7 @@ void SacpClient::main_task()
                     slog::warning("receive Read or Write frame in sacp-client, frame type: {}", static_cast<uint8_t>(frame->type()));
                 } else {
                     slog::warning("receive unknown frame type: {}", static_cast<uint8_t>(frame->type()));
-                }
-
-                // 发给TCP调试端口
-                if (debug_tcp_.connections_num() > 0){  
-                    uint8_t buffer[sacp::Frame::MaxFrameSize >> 1] = { };
-                    std::size_t frame_size = frame->make_raw_frame(buffer, sizeof(buffer));
-                    if (frame_size > 0)
-                    {
-                        debug_tcp_.send(debug_tcp_.AllClients, buffer, frame_size);
-                    }
-                }                
+                }              
             }
         }
     });
@@ -632,6 +632,9 @@ void SacpClient::main_task()
                         }
                         // 放入队列中
                         pending_transactions_.emplace(std::make_unique<Transaction>(get_request_id(), frame));
+
+                        statistics_.tx_queue_frames ++;
+
                         // 告诉发送子线程有任务来了
                         transaction_sync_.notify_one();
                     }
@@ -681,10 +684,9 @@ void SacpClient::main_task()
             attrs.emplace_back(ATTR_SACP_TX_QUEUED, statistics_.tx_queue_frames);
 
             auto frame = std::make_unique<Frame>("sacp", Frame::Priority::PriorityLowest, 0, Frame::OpCode::Report, attrs);                        
-            uint8_t buffer[sacp::Frame::MaxFrameSize >> 1] = { };
+            uint8_t buffer[sacp::Frame::MaxFrameSize << 1] = { };
             std::size_t frame_size = frame->make_raw_frame(buffer, sizeof(buffer));
-            if (frame_size > 0)
-            {
+            if (frame_size > 0){
                 debug_tcp_.send(debug_tcp_.AllClients, buffer, frame_size);
             }
         }  
@@ -697,8 +699,8 @@ void SacpClient::main_task()
             double rx_ok = (statistics_.rx_frames * 100.0) / (statistics_.rx_frames + statistics_.crc_error_frames);
 
             // 打印统计信息
-            slog::info("Statistics: [rx-byte]: {}/{} [tx-byte]: {}/{}", statistics_.rx_bytes, statistics_.rx_rate, statistics_.tx_bytes, statistics_.tx_bytes);
-            slog::info("Statistics: [rx-frame]: {}/{} %6.3f", statistics_.rx_frames, statistics_.tx_frames, statistics_.crc_error_frames, rx_ok);
+            slog::info("Statistics: [rx-byte]: {}/{} [tx-byte]: {}/{}", statistics_.rx_bytes, statistics_.rx_rate, statistics_.tx_bytes, statistics_.tx_rate);
+            slog::info("Statistics: [rx-frame]: {}/{} {:.3f} %%", statistics_.rx_frames, statistics_.crc_error_frames, rx_ok);
             slog::info("Statistics: [tx-frame]: {}/{} queued:{}", statistics_.tx_frames, statistics_.tx_failed_frames, statistics_.tx_queue_frames);
         }
     });
@@ -714,23 +716,21 @@ void SacpClient::main_task()
             return;
         }
 
-        if (external_report_frames_.empty()){
-            return;
-        }
-
-        std::unique_ptr<Frame> frame = nullptr;
+        while (!external_report_frames_.empty())
         {
-            std::lock_guard<std::mutex> lock(external_report_frames_mutex_);
-            frame = std::move(external_report_frames_.front());
-            external_report_frames_.pop();
-        }
+            std::unique_ptr<Frame> frame = nullptr;
+            {
+                std::lock_guard<std::mutex> lock(external_report_frames_mutex_);
+                frame = std::move(external_report_frames_.front());
+                external_report_frames_.pop();
+            }
 
-        uint8_t buffer[sacp::Frame::MaxFrameSize >> 1] = { };
-        std::size_t frame_size = frame->make_raw_frame(buffer, sizeof(buffer));
-        if (frame_size > 0)
-        {
-            // 发到TCP的所有客户端
-            debug_tcp_.send(debug_tcp_.AllClients, buffer, frame_size);
+            uint8_t buffer[sacp::Frame::MaxFrameSize << 1] = { };
+            std::size_t frame_size = frame->make_raw_frame(buffer, sizeof(buffer));
+            if (frame_size > 0){
+                // 发到TCP的所有客户端
+                debug_tcp_.send(debug_tcp_.AllClients, buffer, frame_size);
+            }
         }
     });  
 
