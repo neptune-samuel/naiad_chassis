@@ -59,7 +59,7 @@ NodeChassis::NodeChassis(std::string const &name): rclcpp::Node(name)
     this->declare_parameter(DebugTcpPort, 9600);
     this->declare_parameter(DataExportAdd, "");
     this->declare_parameter(DataExportRemove, "");
-    this->declare_parameter(DebugFogData, 0);
+    this->declare_parameter(DebugFogData, 1);
 
     // 启动一个日志
     // 根据参数类型，启动一个日志

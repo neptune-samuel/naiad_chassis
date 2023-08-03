@@ -59,7 +59,7 @@ public:
 
             slog::debug("{}: get device info, index=%d", type_, req->index);
 
-            if ((req->index >= index_min_) || (req->index <= index_max_)){
+            if ((req->index >= index_min_) && (req->index <= index_max_)){
                 resp->status = true;
                 resp->status_info = "success";
 

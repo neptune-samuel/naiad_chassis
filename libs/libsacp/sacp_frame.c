@@ -187,7 +187,7 @@ static inline int getFloatAttributeSize(uint8_t type)
  * @param attr 
  * @return int 
  */
-static int fillIntegerAttribute(uint8_t *data, uint8_t dataSize, const sacpAttribute_t *attr, int intSize)
+static int fillIntegerAttribute(uint8_t *data, uint16_t dataSize, const sacpAttribute_t *attr, int intSize)
 {
     sacpDataItem1_t *item = (sacpDataItem1_t *)data;
 
@@ -203,7 +203,7 @@ static int fillIntegerAttribute(uint8_t *data, uint8_t dataSize, const sacpAttri
     }
 
     // 看看长度是否足够
-    if (sizeof(*item) + intSize > dataSize)
+    if ((sizeof(*item) + intSize) > dataSize)
     {
         elog("no enough data for attribute(%d:%d)", attr->id, attr->type);
         return 0;
@@ -254,13 +254,13 @@ static int fillIntegerAttribute(uint8_t *data, uint8_t dataSize, const sacpAttri
  * @param attr 
  * @return int 
  */
-static int fillFloatAttribute(uint8_t *data, uint8_t dataSize, const sacpAttribute_t *attr)
+static int fillFloatAttribute(uint8_t *data, uint16_t dataSize, const sacpAttribute_t *attr)
 {
     sacpDataItem1_t *item = (sacpDataItem1_t *)data;
     int floatSize = getFloatAttributeSize(attr->type);
 
     // 看看长度是否足够
-    if (sizeof(*item) + floatSize > dataSize)
+    if ((sizeof(*item) + floatSize) > dataSize)
     {
         elog("no enough data for attribute(%d:%d)", attr->id, attr->type);
         return 0;
@@ -304,12 +304,12 @@ static int fillFloatAttribute(uint8_t *data, uint8_t dataSize, const sacpAttribu
  * @param attr 
  * @return int 
  */
-static int fillOctetAttribute(uint8_t *data, uint8_t dataSize, const sacpAttribute_t *attr)
+static int fillOctetAttribute(uint8_t *data, uint16_t dataSize, const sacpAttribute_t *attr)
 {
     sacpDataItem1_t *item = (sacpDataItem1_t *)data;
 
     // 看看长度是否足够, OCTET的值，有一字节是存长度， 支持空字串
-    if (sizeof(*item) + attr->len + 1 > dataSize)
+    if ((sizeof(*item) + attr->len + 1) > dataSize)
     {
         elog("no enough data for attribute(%d:%d)", attr->id, attr->type);
         return 0;
@@ -466,6 +466,8 @@ int sacpMakeFrame(uint8_t sequence, uint8_t control, const sacpAttribute_t *attr
     uint16_t *pCrc = (uint16_t *)&frame[sizeof(*hdr) + dataLen];
     uint16_t crc = crc16Modbus(0xffff, (const uint8_t *)hdr, sizeof(*hdr) + dataLen);
     *pCrc = htoles(crc);
+
+    // ilog("make frame success");
 
     return sizeof(*hdr) + dataLen + 2; // 2 is crc16
 }
