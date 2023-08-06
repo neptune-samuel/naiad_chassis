@@ -38,7 +38,7 @@ sacp::Attribute const & get_attribute(
     //是否类型相同
     if (!pattern.type_match(*it)) {
         failed_count ++;
-        slog::warning("attribute[{}] type unmatched, got {}, expect {}");
+        slog::warning("attribute[{}] type unmatched, got {}, expect {}", id, it->type_value(), pattern.type_value());
         return sacp::Attribute::ZeroAttribute;
     }
 
@@ -110,7 +110,7 @@ bool parse_attributes_range(sacp::AttributeArray const &attrs,
             s += a.brief();
         }
 
-        slog::warning("unabled to find correct attributes in ({}) in range(%d~%d)", s, first_id, second_id);
+        slog::warning("unabled to find correct attributes in ({}) in range({}~{})", s, first_id, second_id);
         return false;
     }
 

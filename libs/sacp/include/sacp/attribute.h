@@ -81,6 +81,13 @@ public:
 
     std::type_info const & type_id() const ;
 
+    /// @brief 返回类型的值
+    /// @return 
+    int type_value() const
+    {
+        return static_cast<int>(type_);
+    }
+
     std::string value_string() const ;
 
     /// @brief 返回一个子串 ATTR[0023](bool) = true

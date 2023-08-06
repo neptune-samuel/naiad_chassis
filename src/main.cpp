@@ -6,6 +6,7 @@
 #include "common/logger.h"
 #include "rclcpp/rclcpp.hpp"
 #include "chassis/node_manager.h"
+#include "common/core_dump.h"
 
 #define APP_NAME "naiad_chassis"
 #define APP_VERSION  "v0.1.0"
@@ -13,6 +14,9 @@
 
 int main(int argc, char **argv)
 {
+    signal(SIGSEGV, core_dump);    
+    signal(SIGABRT, core_dump);
+
     rclcpp::init(argc, argv);
     rclcpp::executors::SingleThreadedExecutor executor;
 

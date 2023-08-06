@@ -26,7 +26,8 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   #add_compile_options(-Wall -Wextra -Wpedantic)
-  add_compile_options(-Wall -Wextra)
+  add_compile_options(-Wall -Wextra -Wformat)
+  add_compile_options(-g -rdynamic -no-pie)
 endif()
 
 if (WS_ROS)
@@ -59,13 +60,11 @@ if (NOT WS_ROS)
 find_package(spdlog REQUIRED PATHS ${WS_INSTALL_PREFIX})
 endif()
 find_package(fmt REQUIRED PATHS ${WS_INSTALL_PREFIX})
-find_package(docopt REQUIRED PATHS ${WS_INSTALL_PREFIX})
 
 find_package(common REQUIRED PATHS ${WS_INSTALL_PREFIX})
 
 message(STATUS "=> found spdlog : ${spdlog_VERSION}")
 message(STATUS "=> found libuv  : ${libuv_VERSION}")
-message(STATUS "=> found docopt : ${docopt_VERSION}")
 message(STATUS "=> found fmt    : ${fmt_VERSION}")
 message(STATUS "=> found common : ${common_VERSION}")
 
